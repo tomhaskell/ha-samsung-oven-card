@@ -112,7 +112,10 @@ class SamsungOvenCard extends HTMLElement {
       return "--:--";
     }
 
-    const diffSec = Math.max(0, Math.floor((finishDate.getTime() - Date.now()) / 1000));
+    const diffSec = Math.max(
+      0,
+      Math.floor((finishDate.getTime() - Date.now()) / 1000),
+    );
     const hours = Math.floor(diffSec / 3600);
     const minutes = Math.floor((diffSec % 3600) / 60);
     const seconds = diffSec % 60;
@@ -234,6 +237,81 @@ class SamsungOvenCard extends HTMLElement {
     const dashOffset = arcLength - (arcLength * progress) / 100;
     const timeRemaining = this._formatRemaining();
 
+    const isMicrowave =
+      Boolean(cookingMode) &&
+      (cookingMode.toLowerCase().includes("micro_wave") ||
+        cookingMode.toLowerCase().includes("microwave"));
+    const isActive = machineState === "active";
+
+    const tempObj = this._state(Entities.temperature);
+    const setpointObj = this._state(Entities.setpoint);
+
+    const currentTemp = tempObj ? Number(tempObj.state) : NaN;
+    const targetTemp = setpointObj ? Number(setpointObj.state) : NaN;
+    const tempUnit =
+      tempObj?.attributes?.unit_of_measurement ||
+      setpointObj?.attributes?.unit_of_measurement ||
+      "°C";
+
+    let tempStatusClass = "neutral";
+    let trendArrow = "";
+    let arrowClass = "";
+    let mainValue = "--";
+    let mainUnit = "";
+    let subDisplay = "";
+
+    if (isMicrowave) {
+      const powerObj =
+        this._state(Entities.powerLevel) || this._state(Entities.power);
+      const val = powerObj?.state ?? setpointObj?.state ?? "--";
+      const unit =
+        powerObj?.attributes?.unit_of_measurement ||
+        setpointObj?.attributes?.unit_of_measurement ||
+        (val !== "--" && !String(val).includes("W") ? "W" : "");
+      mainValue = val;
+      mainUnit = unit;
+      if (isActive) {
+        subDisplay =
+          setpointObj && powerObj && setpointObj.state !== powerObj.state
+            ? `Target: ${setpointObj.state} ${unit}`.trim()
+            : "Power Level";
+      }
+    } else {
+      if (!isNaN(currentTemp)) {
+        mainValue = Math.round(currentTemp);
+        mainUnit = tempUnit.startsWith("°") ? tempUnit : `°${tempUnit}`;
+      } else if (tempObj?.state) {
+        mainValue = tempObj.state;
+      }
+
+      if (isActive) {
+        if (!isNaN(targetTemp) && targetTemp > 0) {
+          const targetUnit = tempUnit.startsWith("°")
+            ? tempUnit
+            : `°${tempUnit}`;
+          subDisplay = `Target: ${Math.round(targetTemp)}${targetUnit}`;
+
+          if (!isNaN(currentTemp)) {
+            const diff = currentTemp - targetTemp;
+            const TEMP_THRESHOLD = 3;
+            if (Math.abs(diff) <= TEMP_THRESHOLD) {
+              tempStatusClass = "at-target";
+            } else if (diff > TEMP_THRESHOLD) {
+              tempStatusClass = "above";
+              trendArrow = html`<ha-icon icon="mdi:arrow-down"></ha-icon>`;
+              arrowClass = "cooling";
+            } else {
+              tempStatusClass = "below";
+              trendArrow = html`<ha-icon icon="mdi:arrow-up"></ha-icon>`;
+              arrowClass = "warming";
+            }
+          }
+        } else if (setpointObj?.state) {
+          subDisplay = `Target: ${this._hass.formatEntityState(setpointObj)}`;
+        }
+      }
+    }
+
     this.shadowRoot.innerHTML = this._frame(html`
       <div class="card-header">
         <span class="title">${this._config.title || this._title}</span>
@@ -273,6 +351,22 @@ class SamsungOvenCard extends HTMLElement {
               ${getOvenIconSvg(cookingMode)}
             </div>
             <div class="oven-time-remaining">${timeRemaining}</div>
+          </div>
+          <div class="oven-temp-area">
+            <div class="temp-primary ${tempStatusClass}">
+              <span class="temp-val">${mainValue}</span>
+              ${mainUnit
+                ? html`<span class="temp-unit">${mainUnit}</span>`
+                : ""}
+              ${trendArrow
+                ? html`<span class="temp-arrow ${arrowClass}"
+                    >${trendArrow}</span
+                  >`
+                : ""}
+            </div>
+            ${subDisplay
+              ? html`<div class="temp-secondary">${subDisplay}</div>`
+              : ""}
           </div>
         </div>
         ${content}

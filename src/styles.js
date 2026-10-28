@@ -24,6 +24,9 @@ export const styles = css`
     .cooking {
       color: var(--orange-color);
     }
+    .preheat {
+      color: var(--orange-color);
+    }
     .ready {
       color: var(--blue-color);
     }
@@ -55,9 +58,154 @@ export const styles = css`
   }
   .card-section {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
-    padding: 8px 0;
+    padding: 8px 12px;
+    gap: 16px;
+  }
+  .oven-temp-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 6em;
+  }
+  .temp-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 2.8em;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .temp-primary.below {
+    color: var(--blue-color, #2196f3);
+  }
+  .temp-primary.above {
+    color: var(--red-color, #f44336);
+  }
+  .temp-primary.at-target {
+    color: var(--green-color, #4caf50);
+  }
+  .temp-primary.neutral {
+    color: var(--primary-text-color);
+  }
+  .temp-unit {
+    font-size: 0.45em;
+    font-weight: 500;
+    line-height: 1;
+    margin-left: 2px;
+    vertical-align: super;
+  }
+  .temp-secondary {
+    font-size: var(--ha-font-size-s, 13px);
+    color: var(--secondary-text-color);
+    margin-top: 4px;
+    font-weight: 500;
+    text-align: center;
+  }
+  .temp-arrow {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+  .temp-arrow ha-icon {
+    --mdc-icon-size: 32px;
+  }
+  .temp-arrow.warming {
+    color: var(--blue-color, #2196f3);
+    animation: arrowUpBounce 1.4s infinite ease-in-out;
+  }
+  .temp-arrow.cooling {
+    color: var(--red-color, #f44336);
+    animation: arrowDownBounce 1.4s infinite ease-in-out;
+  }
+  @keyframes arrowUpBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-5px);
+      opacity: 1;
+    }
+  }
+  @keyframes arrowDownBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(5px);
+      opacity: 1;
+    }
+  }
+  .temp-primary.below {
+    color: var(--blue-color, #2196f3);
+  }
+  .temp-primary.above {
+    color: var(--red-color, #f44336);
+  }
+  .temp-primary.at-target {
+    color: var(--green-color, #4caf50);
+  }
+  .temp-primary.neutral {
+    color: var(--primary-text-color);
+  }
+  .temp-unit {
+    font-size: 0.45em;
+    font-weight: 500;
+    line-height: 1;
+    margin-left: 2px;
+    vertical-align: super;
+  }
+  .temp-secondary {
+    font-size: var(--ha-font-size-s, 13px);
+    color: var(--secondary-text-color);
+    margin-top: 4px;
+    font-weight: 500;
+    text-align: center;
+  }
+  .temp-arrow {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+  .temp-arrow ha-icon {
+    --mdc-icon-size: 32px;
+  }
+  .temp-arrow.warming {
+    color: var(--blue-color, #2196f3);
+    animation: arrowUpBounce 1.4s infinite ease-in-out;
+  }
+  .temp-arrow.cooling {
+    color: var(--red-color, #f44336);
+    animation: arrowDownBounce 1.4s infinite ease-in-out;
+  }
+  @keyframes arrowUpBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-5px);
+      opacity: 1;
+    }
+  }
+  @keyframes arrowDownBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(5px);
+      opacity: 1;
+    }
   }
   .oven-progress-wrapper {
     position: relative;
