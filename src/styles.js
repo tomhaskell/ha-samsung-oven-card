@@ -143,69 +143,63 @@ export const styles = css`
       opacity: 1;
     }
   }
-  .temp-primary.below {
-    color: var(--blue-color, #2196f3);
-  }
-  .temp-primary.above {
-    color: var(--red-color, #f44336);
-  }
-  .temp-primary.at-target {
-    color: var(--green-color, #4caf50);
-  }
-  .temp-primary.neutral {
-    color: var(--primary-text-color);
-  }
-  .temp-unit {
-    font-size: 0.45em;
-    font-weight: 500;
-    line-height: 1;
-    margin-left: 2px;
-    vertical-align: super;
-  }
-  .temp-secondary {
-    font-size: var(--ha-font-size-s, 13px);
-    color: var(--secondary-text-color);
+  .bottom-icon-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 8px 4px;
+    border-top: 1px solid var(--divider-color, rgba(127, 127, 127, 0.15));
     margin-top: 4px;
-    font-weight: 500;
-    text-align: center;
   }
-  .temp-arrow {
+  .icon-indicator {
     display: inline-flex;
     align-items: center;
-    margin-left: 2px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--disabled-text-color, rgba(127, 127, 127, 0.4));
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.1s ease;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    box-sizing: border-box;
   }
-  .temp-arrow ha-icon {
-    --mdc-icon-size: 32px;
+  .icon-indicator ha-icon {
+    --mdc-icon-size: 22px;
   }
-  .temp-arrow.warming {
-    color: var(--blue-color, #2196f3);
-    animation: arrowUpBounce 1.4s infinite ease-in-out;
+  .icon-indicator.clickable {
+    cursor: pointer;
   }
-  .temp-arrow.cooling {
-    color: var(--red-color, #f44336);
-    animation: arrowDownBounce 1.4s infinite ease-in-out;
+  .icon-indicator.clickable:hover {
+    background-color: var(
+      --secondary-background-color,
+      rgba(127, 127, 127, 0.12)
+    );
   }
-  @keyframes arrowUpBounce {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.7;
-    }
-    50% {
-      transform: translateY(-5px);
-      opacity: 1;
-    }
+  .icon-indicator.clickable:active {
+    transform: scale(0.92);
+    background-color: var(
+      --secondary-background-color,
+      rgba(127, 127, 127, 0.2)
+    );
   }
-  @keyframes arrowDownBounce {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.7;
-    }
-    50% {
-      transform: translateY(5px);
-      opacity: 1;
-    }
+  .icon-indicator.active {
+    color: var(--primary-color, #03a9f4);
+  }
+  .icon-indicator.active.lamp {
+    color: var(--amber-color, #ffc107);
+  }
+  .icon-indicator.active.door {
+    color: var(--warning-color, var(--orange-color, #ff9800));
+  }
+  .icon-indicator.active.lock {
+    color: var(--orange-color, #ff9800);
   }
   .oven-progress-wrapper {
     position: relative;

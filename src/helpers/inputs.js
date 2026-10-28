@@ -341,8 +341,22 @@ export function attachInputListeners(container, card) {
     }
   });
 
-  // Handle buttons (<ha-button> emits "click")
+  // Handle buttons and toggles (<ha-button>, [data-action="toggle"])
   container.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest(
+      "[data-action='toggle'][data-entity-key]",
+    );
+    if (toggleBtn) {
+      const key = toggleBtn.dataset.entityKey;
+      const entityId = card._entities?.[key];
+      if (entityId) {
+        card._hass.callService("homeassistant", "toggle", {
+          entity_id: entityId,
+        });
+      }
+      return;
+    }
+
     const btn = e.target.closest("ha-button[data-entity-key]");
     if (!btn) return;
 
