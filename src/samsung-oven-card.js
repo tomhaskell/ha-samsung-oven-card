@@ -207,11 +207,9 @@ class SamsungOvenCard extends HTMLElement {
       return;
     }
 
-    var content = "";
     for (const e in this._entities) {
       const stateObj = this._state(e);
       console.debug(stateObj);
-      content += e + ":" + this._hass.formatEntityState(stateObj) + `<br />`;
     }
 
     const cookingMode = this._state(Entities.cookingMode)?.state;
@@ -263,7 +261,7 @@ class SamsungOvenCard extends HTMLElement {
       if (!isNaN(currentTemp)) {
         mainValue = Math.round(currentTemp);
         mainUnit = tempUnit.startsWith("°") ? tempUnit : `°${tempUnit}`;
-      } else if (tempObj?.state) {
+      } else if (tempObj?.state && tempObj.state != "unknown") {
         mainValue = tempObj.state;
       }
 
@@ -380,7 +378,6 @@ class SamsungOvenCard extends HTMLElement {
             <ha-icon icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"></ha-icon>
           </button>
         </div>
-        ${content}
       </div>
     `);
   }
