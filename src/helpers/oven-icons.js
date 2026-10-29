@@ -1,10 +1,14 @@
 // oven-icons.js
 
-// Outer frame expanded slightly (2.5 -> 21.5) to give 19x19 internal breathing room
+// Outer frame (24x24 viewBox scaled to 70x70px viewport)
 const FRAME =
   '<rect x="2.5" y="2.5" width="19" height="19" rx="2.5" stroke="currentColor" stroke-width="1.5" fill="none" />';
 
-// Compact MDI 4-blade pinwheel fan scaled to r ≈ 4.6 (centered at 12, 12)
+// Dual Cook / split-cavity dashed shelf separator
+const DIVIDER =
+  '<line x1="3.5" y1="12" x2="20.5" y2="12" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2 1.5" />';
+
+// Full-cavity MDI 4-blade pinwheel fan centered at (12, 12)
 const MDI_FAN = `
   <circle cx="12" cy="12" r="1.3" fill="currentColor" />
   <path fill="currentColor" d="
@@ -20,6 +24,44 @@ const MDI_FAN = `
     M 10.7 12
     C 7.4 12 7.4 9.2 9.1 9.2
     C 10.8 9.2 10.8 10.8 10.7 12 Z
+  " />
+`;
+
+// Scaled compact MDI fan for upper split zone (centered at 12, 7.5)
+const MDI_FAN_UPPER = `
+  <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+  <path fill="currentColor" d="
+    M 12 6.6
+    C 12 4.4 13.8 4.4 13.8 5.5
+    C 13.8 6.7 12.8 6.7 12 6.6 Z
+    M 12.9 7.5
+    C 15.1 7.5 15.1 9.3 14 9.3
+    C 12.8 9.3 12.8 8.3 12.9 7.5 Z
+    M 12 8.4
+    C 12 10.6 10.2 10.6 10.2 9.5
+    C 10.2 8.3 11.2 8.3 12 8.4 Z
+    M 11.1 7.5
+    C 8.9 7.5 8.9 5.7 10 5.7
+    C 11.2 5.7 11.2 6.7 11.1 7.5 Z
+  " />
+`;
+
+// Scaled compact MDI fan for lower split zone (centered at 12, 16.5)
+const MDI_FAN_LOWER = `
+  <circle cx="12" cy="16.5" r="1" fill="currentColor" />
+  <path fill="currentColor" d="
+    M 12 15.6
+    C 12 13.4 13.8 13.4 13.8 14.5
+    C 13.8 15.7 12.8 15.7 12 15.6 Z
+    M 12.9 16.5
+    C 15.1 16.5 15.1 18.3 14 18.3
+    C 12.8 18.3 12.8 17.3 12.9 16.5 Z
+    M 12 17.4
+    C 12 19.6 10.2 19.6 10.2 18.5
+    C 10.2 17.3 11.2 17.3 12 17.4 Z
+    M 11.1 16.5
+    C 8.9 16.5 8.9 14.7 10 14.7
+    C 11.2 14.7 11.2 15.7 11.1 16.5 Z
   " />
 `;
 
@@ -57,7 +99,7 @@ export const OVEN_ICONS = {
   conventional: wrapSvg(`${TOP_BAR}${BOTTOM_BAR}`),
 
   eco_convection: wrapSvg(`
-    ${MDI_FAN}
+    ${CIRCULAR_ELEMENT}${MDI_FAN}
     <text x="12" y="19" text-anchor="middle" font-size="3.8" font-family="Roboto, sans-serif" font-weight="900" fill="currentColor">ECO</text>
   `),
 
@@ -128,11 +170,39 @@ export const OVEN_ICONS = {
     <path d="M12 16.8c-1.8 0-3.1-1-3.1-2.6 0-1.7 1.8-3 1.8-4.8.9.9 2.7 2.2 2.7 3.9 0 1.9-1.4 3.5-1.4 3.5z" fill="currentColor" />
     <path d="M15.5 7.5l.4.9.9.4-.9.4-.4.9-.4-.9-.9-.4.9-.4z" fill="currentColor" />
   `),
+
+  // --- Split-Zone / Dual Cook Modes ---
+
+  upper_convection: wrapSvg(`${DIVIDER}${MDI_FAN_UPPER}`),
+
+  upper_top_convection: wrapSvg(`${DIVIDER}${TOP_BAR}${MDI_FAN_UPPER}`),
+
+  upper_large_grill: wrapSvg(`${DIVIDER}${FULL_GRILL}`),
+
+  upper_autocook: wrapSvg(`
+    ${DIVIDER}
+    <path d="M7 9.5h10M7 7.2h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+    <path d="M15.5 4.8l1.2-1.2M16.5 6.8l1.4.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+    <circle cx="15.8" cy="5.8" r="0.9" fill="currentColor" />
+  `),
+
+  lower_convection: wrapSvg(`${DIVIDER}${MDI_FAN_LOWER}`),
+
+  lower_bottom_convection: wrapSvg(`${DIVIDER}${BOTTOM_BAR}${MDI_FAN_LOWER}`),
+
+  lower_bottom: wrapSvg(`${DIVIDER}${BOTTOM_BAR}`),
+
+  lower_autocook: wrapSvg(`
+    ${DIVIDER}
+    <path d="M7 18.5h10M7 16.2h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+    <path d="M15.5 13.8l1.2-1.2M16.5 15.8l1.4.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+    <circle cx="15.8" cy="14.8" r="0.9" fill="currentColor" />
+  `),
 };
 
 /**
  * Normalises an incoming HA state string and returns the 70x70 SVG string directly.
- * @param {string} rawMode - e.g. "Top Heat Pluse Convection", "air_fryer", "Keep Warm"
+ * @param {string} rawMode - e.g. "Upper Top Convection", "lower_bottom", "Keep Warm"
  * @returns {string} SVG string
  */
 export function getOvenIconSvg(rawMode) {

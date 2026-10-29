@@ -1,3 +1,5 @@
+const html = String.raw;
+
 export function isLocalThingsDevice(dev, hass) {
   if (!dev) return false;
 
@@ -108,7 +110,7 @@ export class SamsungOvenCardEditor extends HTMLElement {
     if (!this._hass) return;
 
     if (!this._initialized) {
-      this.shadowRoot.innerHTML = `
+      this.shadowRoot.innerHTML = html`
         <style>
           .card-config {
             display: flex;
@@ -180,7 +182,7 @@ export class SamsungOvenCardEditor extends HTMLElement {
       // Slotted <ha-list-item> elements for older HA versions
       select.innerHTML = devices
         .map(
-          (dev) => `
+          (dev) => html`
             <ha-list-item value="${dev.value}" ${dev.value === this._config?.device_id ? "selected" : ""}>
               ${dev.label}
             </ha-list-item>

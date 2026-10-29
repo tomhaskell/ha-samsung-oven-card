@@ -35,7 +35,7 @@ export const styles = css`
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
   ha-select {
     width: 100%;
@@ -56,13 +56,88 @@ export const styles = css`
     justify-content: space-between;
     align-items: center;
   }
-  .card-section {
+  .oven-panel {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding: 8px 12px;
+    padding: 8px 12px 16px;
     gap: 16px;
+    border-bottom: 1px solid var(--divider-color, rgba(127, 127, 127, 0.15));
   }
+
+  .oven-progress-wrapper {
+    position: relative;
+    width: 10em;
+    height: 10em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .oven-progress-wrapper .oven-mode {
+    transform: translateY(-0.4em);
+  }
+  .progress-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .progress-track {
+    fill: none;
+    stroke: var(--divider-color, rgba(127, 127, 127, 0.15));
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 187 276.46;
+  }
+  .progress-bar {
+    fill: none;
+    stroke: var(--orange-color, #ff9800);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 187 276.46;
+    transition: stroke-dashoffset 0.5s ease;
+  }
+  .progress-bar.ready,
+  .progress-bar.idle {
+    stroke: var(--blue-color, #2196f3);
+  }
+  .progress-bar.finish {
+    stroke: var(--green-color, #4caf50);
+  }
+  .oven-time-remaining {
+    font-size: var(--ha-font-size-xl);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary-text-color);
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-align: center;
+    padding-top: 10px;
+  }
+  .oven-mode svg {
+    width: 5em;
+    height: 5em;
+  }
+  .oven-mode.idle svg {
+    color: var(--blue-color);
+  }
+  .oven-mode.active svg,
+  .oven-mode.cooking svg {
+    color: var(--orange-color);
+  }
+  .oven-mode-name {
+    position: absolute;
+    bottom: 1em;
+    font-size: var(--ha-font-size-s, 13px);
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary-text-color);
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-align: center;
+  }
+
   .oven-temp-area {
     display: flex;
     flex-direction: column;
@@ -143,13 +218,12 @@ export const styles = css`
       opacity: 1;
     }
   }
+
   .bottom-icon-bar {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 12px 8px 4px;
-    border-top: 1px solid var(--divider-color, rgba(127, 127, 127, 0.15));
-    margin-top: 4px;
+    padding: 0px 8px 4px;
   }
   .icon-indicator {
     display: inline-flex;
@@ -177,17 +251,11 @@ export const styles = css`
     cursor: pointer;
   }
   .icon-indicator.clickable:hover {
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.12)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.12));
   }
   .icon-indicator.clickable:active {
     transform: scale(0.92);
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.2)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.2));
   }
   .icon-indicator.active {
     color: var(--primary-color, #03a9f4);
@@ -200,67 +268,5 @@ export const styles = css`
   }
   .icon-indicator.active.lock {
     color: var(--orange-color, #ff9800);
-  }
-  .oven-progress-wrapper {
-    position: relative;
-    width: 10em;
-    height: 10em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .oven-progress-wrapper .oven-mode {
-    transform: translateY(-0.4em);
-  }
-  .progress-ring {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .progress-track {
-    fill: none;
-    stroke: var(--divider-color, rgba(127, 127, 127, 0.15));
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-dasharray: 207.35 276.46;
-  }
-  .progress-bar {
-    fill: none;
-    stroke: var(--orange-color, #ff9800);
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-dasharray: 207.35 276.46;
-    transition: stroke-dashoffset 0.5s ease;
-  }
-  .progress-bar.ready,
-  .progress-bar.idle {
-    stroke: var(--blue-color, #2196f3);
-  }
-  .progress-bar.finish {
-    stroke: var(--green-color, #4caf50);
-  }
-  .oven-time-remaining {
-    position: absolute;
-    bottom: 0.35em;
-    font-size: var(--ha-font-size-s, 13px);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--primary-text-color);
-    letter-spacing: 0.5px;
-    line-height: 1;
-    text-align: center;
-  }
-  .oven-mode svg {
-    width: 5em;
-    height: 5em;
-  }
-  .oven-mode.idle svg {
-    color: var(--blue-color);
-  }
-  .oven-mode.active svg,
-  .oven-mode.cooking svg {
-    color: var(--orange-color);
   }
 `;

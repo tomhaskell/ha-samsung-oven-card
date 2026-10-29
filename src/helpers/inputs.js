@@ -10,13 +10,7 @@ const html = String.raw;
  * @param {Object.<string, string>} [options.labels] - Optional map of item values to display labels (e.g. CookingModeLabels)
  * @param {boolean} [options.disabled=false]
  */
-export function renderSelect({
-  card,
-  entityKey,
-  label,
-  labels,
-  disabled = false,
-}) {
+export function renderSelect({ card, entityKey, label, labels, disabled = false }) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -26,8 +20,7 @@ export function renderSelect({
 
   const items = options.map((opt) => {
     const value = typeof opt === "object" ? opt.value : opt;
-    const optLabel =
-      labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
+    const optLabel = labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
     return { value, label: optLabel };
   });
 
@@ -48,10 +41,7 @@ export function renderSelect({
       ${items
         .map(
           (item) => html`
-            <ha-list-item
-              value="${item.value}"
-              ${item.value === current ? "selected" : ""}
-            >
+            <ha-list-item value="${item.value}" ${item.value === current ? "selected" : ""}>
               ${item.label}
             </ha-list-item>
           `,
@@ -71,13 +61,7 @@ export function renderSelect({
  * @param {Object.<string, string>} [options.labels] - Optional map of item values to display labels (e.g. CookingModeLabels)
  * @param {boolean} [options.disabled=false]
  */
-export function renderComboBox({
-  card,
-  entityKey,
-  label,
-  labels,
-  disabled = false,
-}) {
+export function renderComboBox({ card, entityKey, label, labels, disabled = false }) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -86,8 +70,7 @@ export function renderComboBox({
   const comboLabel = label || stateObj.attributes?.friendly_name || "";
   const items = rawOptions.map((opt) => {
     const value = typeof opt === "object" ? opt.value : opt;
-    const optLabel =
-      labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
+    const optLabel = labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
     return { label: optLabel, value };
   });
   const itemsJson = JSON.stringify(items).replace(/"/g, "&quot;");
@@ -117,15 +100,7 @@ export function renderComboBox({
  * @param {number} [options.step] - Step value (defaults to entity attribute or 1)
  * @param {boolean} [options.disabled=false]
  */
-export function renderSlider({
-  card,
-  entityKey,
-  label,
-  min,
-  max,
-  step,
-  disabled = false,
-}) {
+export function renderSlider({ card, entityKey, label, min, max, step, disabled = false }) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -197,14 +172,7 @@ export function renderSwitch({ card, entityKey, label, disabled = false }) {
  * @param {boolean} [options.raised=false]
  * @param {boolean} [options.disabled=false]
  */
-export function renderButton({
-  card,
-  entityKey,
-  label,
-  icon,
-  raised = false,
-  disabled = false,
-}) {
+export function renderButton({ card, entityKey, label, icon, raised = false, disabled = false }) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -215,8 +183,7 @@ export function renderButton({
       ${raised ? "raised" : ""}
       ${disabled ? "disabled" : ""}
     >
-      ${icon ? html`<ha-icon icon="${icon}" slot="icon"></ha-icon>` : ""}
-      ${label}
+      ${icon ? html`<ha-icon icon="${icon}" slot="icon"></ha-icon>` : ""} ${label}
     </ha-button>
   `;
 }
@@ -237,9 +204,7 @@ export function attachInputListeners(container, card) {
       try {
         const rawOpts = JSON.parse(select.dataset.options || "[]");
         // Modern Home Assistant accepts an array of { label, value } or strings
-        select.options = rawOpts.map((opt) =>
-          typeof opt === "object" ? opt : { label: opt, value: opt },
-        );
+        select.options = rawOpts.map((opt) => (typeof opt === "object" ? opt : { label: opt, value: opt }));
       } catch (e) {
         console.error("Failed to parse options for ha-select", e);
       }
@@ -273,9 +238,7 @@ export function attachInputListeners(container, card) {
 
   // Handle select / combobox changes
   const handleSelect = (e) => {
-    const target = e.target.closest(
-      "ha-select[data-entity-key], ha-combo-box[data-entity-key]",
-    );
+    const target = e.target.closest("ha-select[data-entity-key], ha-combo-box[data-entity-key]");
     if (!target) return;
 
     const key = target.dataset.entityKey;
@@ -300,11 +263,7 @@ export function attachInputListeners(container, card) {
   container.addEventListener("value-changed", handleSelect);
   container.addEventListener("change", (e) => {
     // If it's a select, handle it via handleSelect
-    if (
-      e.target.closest(
-        "ha-select[data-entity-key], ha-combo-box[data-entity-key]",
-      )
-    ) {
+    if (e.target.closest("ha-select[data-entity-key], ha-combo-box[data-entity-key]")) {
       handleSelect(e);
       return;
     }
@@ -343,9 +302,7 @@ export function attachInputListeners(container, card) {
 
   // Handle buttons and toggles (<ha-button>, [data-action="toggle"])
   container.addEventListener("click", (e) => {
-    const toggleBtn = e.target.closest(
-      "[data-action='toggle'][data-entity-key]",
-    );
+    const toggleBtn = e.target.closest("[data-action='toggle'][data-entity-key]");
     if (toggleBtn) {
       const key = toggleBtn.dataset.entityKey;
       const entityId = card._entities?.[key];
