@@ -80,15 +80,19 @@ You can also configure the card manually in your Lovelace YAML:
 type: custom:samsung-oven-card
 device_id: <your-oven-device-id>
 title: Kitchen Oven # optional
+standard_temperatures: [160, 180, 200, 220] # optional presets
+standard_times: [15, 30, 60, 90] # optional presets (minutes)
 ```
 
 #### Configuration Options
 
-| Option      | Type   | Required | Default     | Description                                                                          |
-| ----------- | ------ | -------- | ----------- | ------------------------------------------------------------------------------------ |
-| `type`      | string | **Yes**  | —           | `custom:samsung-oven-card`                                                           |
-| `device_id` | string | **Yes**  | —           | The Home Assistant device ID for your Samsung oven from the LocalThings integration. |
-| `title`     | string | No       | Device Name | Custom title displayed in the card header.                                           |
+| Option                  | Type           | Required | Default              | Description                                                                          |
+| ----------------------- | -------------- | -------- | -------------------- | ------------------------------------------------------------------------------------ |
+| `type`                  | string         | **Yes**  | —                    | `custom:samsung-oven-card`                                                           |
+| `device_id`             | string         | **Yes**  | —                    | The Home Assistant device ID for your Samsung oven from the LocalThings integration. |
+| `title`                 | string         | No       | Device Name          | Custom title displayed in the card header.                                           |
+| `standard_temperatures` | list or string | No       | `160, 180, 200, 220` | Preset temperature buttons displayed in the expanded oven controls.                  |
+| `standard_times`        | list or string | No       | `15, 30, 60, 90`     | Preset cook time buttons (minutes) displayed in the expanded oven controls.          |
 
 > [!TIP]
 > You can find your `device_id` by navigating to **Settings > Devices & Services > Devices**, selecting your oven, and copying the ID from the URL (or by using the visual card editor dropdown).

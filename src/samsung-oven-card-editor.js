@@ -14,7 +14,10 @@ export function isLocalThingsDevice(dev, hass) {
 
   // 2. Check manufacturer / model
   const manufacturer = (dev.manufacturer || "").toLowerCase();
-  if (manufacturer.includes("localthings") || manufacturer.includes("local_things")) {
+  if (
+    manufacturer.includes("localthings") ||
+    manufacturer.includes("local_things")
+  ) {
     return true;
   }
 
@@ -24,7 +27,9 @@ export function isLocalThingsDevice(dev, hass) {
       const devId = entry.device_id || entry.di;
       if (devId !== dev.id) return false;
       const platform = String(entry.platform || entry.pl || "").toLowerCase();
-      return platform.includes("localthings") || platform.includes("local_things");
+      return (
+        platform.includes("localthings") || platform.includes("local_things")
+      );
     });
     if (hasLtEntity) return true;
   }
@@ -40,7 +45,11 @@ export function getLocalThingsOvenDevices(hass) {
   // Primary: LocalThings devices with 'oven' in the name (case-insensitive)
   let devices = allDevices.filter((dev) => {
     const name = (dev.name || "").toLowerCase();
-    return isLocalThingsDevice(dev, hass) && name.includes("oven") && !name.includes("subdevice");
+    return (
+      isLocalThingsDevice(dev, hass) &&
+      name.includes("oven") &&
+      !name.includes("subdevice")
+    );
   });
 
   // Fallback 1: Any LocalThings devices
@@ -145,6 +154,14 @@ export class SamsungOvenCardEditor extends HTMLElement {
             id="title-input"
             label="Card Title (Optional)"
           ></ha-textfield>
+          <ha-textfield
+            id="temperatures-input"
+            label="Standard Temperatures (e.g. 160, 180, 200, 220)"
+          ></ha-textfield>
+          <ha-textfield
+            id="times-input"
+            label="Standard Cook Times (minutes, e.g. 15, 30, 60, 90)"
+          ></ha-textfield>
         </div>
       `;
 
@@ -164,16 +181,31 @@ export class SamsungOvenCardEditor extends HTMLElement {
         this._valueChanged("title", ev.target.value);
       });
 
+      const tempsInput = this.shadowRoot.querySelector("#temperatures-input");
+      tempsInput?.addEventListener("input", (ev) => {
+        this._valueChanged("standard_temperatures", ev.target.value);
+      });
+
+      const timesInput = this.shadowRoot.querySelector("#times-input");
+      timesInput?.addEventListener("input", (ev) => {
+        this._valueChanged("standard_times", ev.target.value);
+      });
+
       this._initialized = true;
     }
 
     // Resolve oven devices
     const devices = getLocalThingsOvenDevices(this._hass);
-    if (this._config?.device_id && !devices.some((i) => i.value === this._config.device_id)) {
+    if (
+      this._config?.device_id &&
+      !devices.some((i) => i.value === this._config.device_id)
+    ) {
       const currentDev = this._hass.devices[this._config.device_id];
       devices.unshift({
         value: this._config.device_id,
-        label: currentDev ? currentDev.name_by_user || currentDev.name : this._config.device_id,
+        label: currentDev
+          ? currentDev.name_by_user || currentDev.name
+          : this._config.device_id,
       });
     }
 
@@ -183,7 +215,10 @@ export class SamsungOvenCardEditor extends HTMLElement {
       select.innerHTML = devices
         .map(
           (dev) => html`
-            <ha-list-item value="${dev.value}" ${dev.value === this._config?.device_id ? "selected" : ""}>
+            <ha-list-item
+              value="${dev.value}"
+              ${dev.value === this._config?.device_id ? "selected" : ""}
+            >
               ${dev.label}
             </ha-list-item>
           `,
@@ -199,7 +234,8 @@ export class SamsungOvenCardEditor extends HTMLElement {
     if (helpEl) {
       if (devices.length === 0) {
         helpEl.className = "warning-text";
-        helpEl.textContent = "No LocalThings devices with 'oven' in their name were found.";
+        helpEl.textContent =
+          "No LocalThings devices with 'oven' in their name were found.";
       } else {
         helpEl.className = "help-text";
         helpEl.textContent = `Found ${devices.length} oven device${devices.length === 1 ? "" : "s"}.`;
@@ -209,6 +245,26 @@ export class SamsungOvenCardEditor extends HTMLElement {
     const titleInput = this.shadowRoot.querySelector("#title-input");
     if (titleInput && titleInput.value !== (this._config?.title || "")) {
       titleInput.value = this._config?.title || "";
+    }
+
+    const tempsInput = this.shadowRoot.querySelector("#temperatures-input");
+    if (tempsInput) {
+      const val = Array.isArray(this._config?.standard_temperatures)
+        ? this._config.standard_temperatures.join(", ")
+        : this._config?.standard_temperatures || "";
+      if (tempsInput.value !== val) {
+        tempsInput.value = val;
+      }
+    }
+
+    const timesInput = this.shadowRoot.querySelector("#times-input");
+    if (timesInput) {
+      const val = Array.isArray(this._config?.standard_times)
+        ? this._config.standard_times.join(", ")
+        : this._config?.standard_times || "";
+      if (timesInput.value !== val) {
+        timesInput.value = val;
+      }
     }
   }
 }

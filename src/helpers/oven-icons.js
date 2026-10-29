@@ -1,12 +1,21 @@
 // oven-icons.js
 
-// Outer frame (24x24 viewBox scaled to 70x70px viewport)
+// Standard full-cavity outer frame (24x24 viewBox scaled to 70x70px viewport)
 const FRAME =
   '<rect x="2.5" y="2.5" width="19" height="19" rx="2.5" stroke="currentColor" stroke-width="1.5" fill="none" />';
 
-// Dual Cook / split-cavity dashed shelf separator
-const DIVIDER =
-  '<line x1="3.5" y1="12" x2="20.5" y2="12" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2 1.5" />';
+// Dual-zone truncated frames (75% height, capped by the dashed shelf line)
+// Upper: solid top rounded corners, dashed base line at y = 17
+const FRAME_UPPER_ZONE = `
+  <path d="M 2.5 17 V 5 A 2.5 2.5 0 0 1 5 2.5 H 19 A 2.5 2.5 0 0 1 21.5 5 V 17" stroke="currentColor" stroke-width="1.5" fill="none" />
+  <line x1="2.5" y1="17" x2="21.5" y2="17" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1.5" />
+`;
+
+// Lower: solid bottom rounded corners, dashed ceiling line at y = 7
+const FRAME_LOWER_ZONE = `
+  <line x1="2.5" y1="7" x2="21.5" y2="7" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1.5" />
+  <path d="M 2.5 7 V 19 A 2.5 2.5 0 0 0 5 21.5 H 19 A 2.5 2.5 0 0 0 21.5 19 V 7" stroke="currentColor" stroke-width="1.5" fill="none" />
+`;
 
 // Full-cavity MDI 4-blade pinwheel fan centered at (12, 12)
 const MDI_FAN = `
@@ -27,41 +36,41 @@ const MDI_FAN = `
   " />
 `;
 
-// Scaled compact MDI fan for upper split zone (centered at 12, 7.5)
+// Upper active zone fan centered at (12, 10)
 const MDI_FAN_UPPER = `
-  <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+  <circle cx="12" cy="10" r="1.2" fill="currentColor" />
   <path fill="currentColor" d="
-    M 12 6.6
-    C 12 4.4 13.8 4.4 13.8 5.5
-    C 13.8 6.7 12.8 6.7 12 6.6 Z
-    M 12.9 7.5
-    C 15.1 7.5 15.1 9.3 14 9.3
-    C 12.8 9.3 12.8 8.3 12.9 7.5 Z
-    M 12 8.4
-    C 12 10.6 10.2 10.6 10.2 9.5
-    C 10.2 8.3 11.2 8.3 12 8.4 Z
-    M 11.1 7.5
-    C 8.9 7.5 8.9 5.7 10 5.7
-    C 11.2 5.7 11.2 6.7 11.1 7.5 Z
+    M 12 8.8
+    C 12 5.8 14.5 5.8 14.5 7.4
+    C 14.5 8.9 13.1 8.9 12 8.8 Z
+    M 13.2 10
+    C 16.2 10 16.2 12.5 14.7 12.5
+    C 13.1 12.5 13.1 11.1 13.2 10 Z
+    M 12 11.2
+    C 12 14.2 9.5 14.2 9.5 12.6
+    C 9.5 11.1 10.9 11.1 12 11.2 Z
+    M 10.8 10
+    C 7.8 10 7.8 7.5 9.3 7.5
+    C 10.9 7.5 10.9 8.9 10.8 10 Z
   " />
 `;
 
-// Scaled compact MDI fan for lower split zone (centered at 12, 16.5)
+// Lower active zone fan centered at (12, 14)
 const MDI_FAN_LOWER = `
-  <circle cx="12" cy="16.5" r="1" fill="currentColor" />
+  <circle cx="12" cy="14" r="1.2" fill="currentColor" />
   <path fill="currentColor" d="
-    M 12 15.6
-    C 12 13.4 13.8 13.4 13.8 14.5
-    C 13.8 15.7 12.8 15.7 12 15.6 Z
-    M 12.9 16.5
-    C 15.1 16.5 15.1 18.3 14 18.3
-    C 12.8 18.3 12.8 17.3 12.9 16.5 Z
-    M 12 17.4
-    C 12 19.6 10.2 19.6 10.2 18.5
-    C 10.2 17.3 11.2 17.3 12 17.4 Z
-    M 11.1 16.5
-    C 8.9 16.5 8.9 14.7 10 14.7
-    C 11.2 14.7 11.2 15.7 11.1 16.5 Z
+    M 12 12.8
+    C 12 9.8 14.5 9.8 14.5 11.4
+    C 14.5 12.9 13.1 12.9 12 12.8 Z
+    M 13.2 14
+    C 16.2 14 16.2 16.5 14.7 16.5
+    C 13.1 16.5 13.1 15.1 13.2 14 Z
+    M 12 15.2
+    C 12 18.2 9.5 18.2 9.5 16.6
+    C 9.5 15.1 10.9 15.1 12 15.2 Z
+    M 10.8 14
+    C 7.8 14 7.8 11.5 9.3 11.5
+    C 10.9 11.5 10.9 12.9 10.8 14 Z
   " />
 `;
 
@@ -78,8 +87,8 @@ const HALF_GRILL =
 const MW_WAVES =
   '<path d="M6 10.5c1.5-1.1 3 1.1 4.5 0s3-1.1 4.5 0M6 13.5c1.5-1.1 3 1.1 4.5 0s3-1.1 4.5 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" />';
 
-const wrapSvg = (innerContent) =>
-  `<svg viewBox="0 0 24 24" width="70" height="70" xmlns="http://www.w3.org/2000/svg">${FRAME}${innerContent}</svg>`;
+const wrapSvg = (innerContent, frame = FRAME) =>
+  `<svg viewBox="0 0 24 24" width="70" height="70" xmlns="http://www.w3.org/2000/svg">${frame}${innerContent}</svg>`;
 
 export const OVEN_ICONS = {
   no_operation: wrapSvg(
@@ -171,33 +180,39 @@ export const OVEN_ICONS = {
     <path d="M15.5 7.5l.4.9.9.4-.9.4-.4.9-.4-.9-.9-.4.9-.4z" fill="currentColor" />
   `),
 
-  // --- Split-Zone / Dual Cook Modes ---
+  // --- Dual-Zone Upper Modes (75% Height, Capped with Dashed Base) ---
 
-  upper_convection: wrapSvg(`${DIVIDER}${MDI_FAN_UPPER}`),
+  upper_convection: wrapSvg(MDI_FAN_UPPER, FRAME_UPPER_ZONE),
 
-  upper_top_convection: wrapSvg(`${DIVIDER}${TOP_BAR}${MDI_FAN_UPPER}`),
+  upper_top_convection: wrapSvg(`${TOP_BAR}${MDI_FAN_UPPER}`, FRAME_UPPER_ZONE),
 
-  upper_large_grill: wrapSvg(`${DIVIDER}${FULL_GRILL}`),
+  upper_large_grill: wrapSvg(FULL_GRILL, FRAME_UPPER_ZONE),
 
-  upper_autocook: wrapSvg(`
-    ${DIVIDER}
-    <path d="M7 9.5h10M7 7.2h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-    <path d="M15.5 4.8l1.2-1.2M16.5 6.8l1.4.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
-    <circle cx="15.8" cy="5.8" r="0.9" fill="currentColor" />
-  `),
+  upper_autocook: wrapSvg(
+    `
+    <path d="M7 13.5h10M7 10.5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M15.5 6.5l1.4-1.4M16.8 9.3l1.6.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+    <circle cx="15.8" cy="7.9" r="1.1" fill="currentColor" />
+  `,
+    FRAME_UPPER_ZONE,
+  ),
 
-  lower_convection: wrapSvg(`${DIVIDER}${MDI_FAN_LOWER}`),
+  // --- Dual-Zone Lower Modes (75% Height, Capped with Dashed Ceiling) ---
 
-  lower_bottom_convection: wrapSvg(`${DIVIDER}${BOTTOM_BAR}${MDI_FAN_LOWER}`),
+  lower_convection: wrapSvg(MDI_FAN_LOWER, FRAME_LOWER_ZONE),
 
-  lower_bottom: wrapSvg(`${DIVIDER}${BOTTOM_BAR}`),
+  lower_bottom_convection: wrapSvg(`${BOTTOM_BAR}${MDI_FAN_LOWER}`, FRAME_LOWER_ZONE),
 
-  lower_autocook: wrapSvg(`
-    ${DIVIDER}
-    <path d="M7 18.5h10M7 16.2h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-    <path d="M15.5 13.8l1.2-1.2M16.5 15.8l1.4.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
-    <circle cx="15.8" cy="14.8" r="0.9" fill="currentColor" />
-  `),
+  lower_bottom: wrapSvg(BOTTOM_BAR, FRAME_LOWER_ZONE),
+
+  lower_autocook: wrapSvg(
+    `
+    <path d="M7 16h10M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M15.5 9l1.4-1.4M16.8 11.8l1.6.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+    <circle cx="15.8" cy="10.4" r="1.1" fill="currentColor" />
+  `,
+    FRAME_LOWER_ZONE,
+  ),
 };
 
 /**

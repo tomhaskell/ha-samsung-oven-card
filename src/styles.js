@@ -40,6 +40,20 @@ export const styles = css`
   ha-select {
     width: 100%;
   }
+  ha-slider {
+    width: 100%;
+    --mdc-theme-primary: var(--orange-color, #ff9800);
+    --primary-color: var(--orange-color, #ff9800);
+    --ha-slider-selected-color: var(--orange-color, #ff9800);
+    --ha-slider-pin-color: var(--orange-color, #ff9800);
+    --mdc-slider-active-track-color: var(--orange-color, #ff9800);
+    --mdc-slider-thumb-color: var(--orange-color, #ff9800);
+    --mdc-slider-value-indicator-color: var(--orange-color, #ff9800);
+    --md-slider-active-track-color: var(--orange-color, #ff9800);
+    --md-slider-focus-handle-color: var(--orange-color, #ff9800);
+    --md-slider-hover-handle-color: var(--orange-color, #ff9800);
+    --md-slider-selected-handle-color: var(--orange-color, #ff9800);
+  }
   .input-slider-wrapper {
     display: flex;
     flex-direction: column;
@@ -56,13 +70,127 @@ export const styles = css`
     justify-content: space-between;
     align-items: center;
   }
+  .oven-panel-container {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--divider-color, rgba(127, 127, 127, 0.15));
+    border-radius: var(--ha-card-border-radius, 12px);
+    transition: background-color 0.2s ease;
+  }
+  .oven-panel-container.expanded {
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.04));
+  }
   .oven-panel {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
     padding: 8px 12px 16px;
     gap: 16px;
-    border-bottom: 1px solid var(--divider-color, rgba(127, 127, 127, 0.15));
+    position: relative;
+    border-radius: var(--ha-card-border-radius, 12px);
+    user-select: none;
+  }
+  .oven-panel.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .oven-panel.clickable:hover {
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.08));
+  }
+  .expand-chevron {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+  .oven-panel.clickable:hover .expand-chevron {
+    opacity: 1;
+    color: var(--primary-color, #03a9f4);
+  }
+  .oven-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 4px 16px 16px;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .control-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .preset-btn {
+    flex: 1;
+    min-width: 58px;
+    height: 32px;
+    border-radius: 16px;
+    border: 1px solid var(--divider-color, rgba(127, 127, 127, 0.25));
+    background: var(--card-background-color, rgba(127, 127, 127, 0.06));
+    color: var(--primary-text-color);
+    font-size: var(--ha-font-size-s, 13px);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+  }
+  .preset-btn:hover {
+    background: var(--orange-color, #ff9800);
+    color: #ffffff;
+    border-color: var(--orange-color, #ff9800);
+  }
+  .preset-btn.active {
+    background: var(--orange-color, #ff9800);
+    color: #ffffff;
+    border-color: var(--orange-color, #ff9800);
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(255, 152, 0, 0.35);
+  }
+  .expansion-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--divider-color, rgba(127, 127, 127, 0.1));
+  }
+  .expansion-actions .action-spacer {
+    flex: 1;
+  }
+  .expansion-actions .stop-btn {
+    --mdc-theme-primary: var(--error-color, #f44336);
+    color: var(--error-color, #f44336);
+  }
+  .expansion-actions .start-btn {
+    --mdc-theme-primary: var(--primary-color, #03a9f4);
   }
 
   .oven-progress-wrapper {

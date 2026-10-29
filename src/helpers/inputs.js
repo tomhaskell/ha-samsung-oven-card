@@ -10,7 +10,13 @@ const html = String.raw;
  * @param {Object.<string, string>} [options.labels] - Optional map of item values to display labels (e.g. CookingModeLabels)
  * @param {boolean} [options.disabled=false]
  */
-export function renderSelect({ card, entityKey, label, labels, disabled = false }) {
+export function renderSelect({
+  card,
+  entityKey,
+  label,
+  labels,
+  disabled = false,
+}) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -20,7 +26,8 @@ export function renderSelect({ card, entityKey, label, labels, disabled = false 
 
   const items = options.map((opt) => {
     const value = typeof opt === "object" ? opt.value : opt;
-    const optLabel = labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
+    const optLabel =
+      labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
     return { value, label: optLabel };
   });
 
@@ -41,7 +48,10 @@ export function renderSelect({ card, entityKey, label, labels, disabled = false 
       ${items
         .map(
           (item) => html`
-            <ha-list-item value="${item.value}" ${item.value === current ? "selected" : ""}>
+            <ha-list-item
+              value="${item.value}"
+              ${item.value === current ? "selected" : ""}
+            >
               ${item.label}
             </ha-list-item>
           `,
@@ -61,7 +71,13 @@ export function renderSelect({ card, entityKey, label, labels, disabled = false 
  * @param {Object.<string, string>} [options.labels] - Optional map of item values to display labels (e.g. CookingModeLabels)
  * @param {boolean} [options.disabled=false]
  */
-export function renderComboBox({ card, entityKey, label, labels, disabled = false }) {
+export function renderComboBox({
+  card,
+  entityKey,
+  label,
+  labels,
+  disabled = false,
+}) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -70,7 +86,8 @@ export function renderComboBox({ card, entityKey, label, labels, disabled = fals
   const comboLabel = label || stateObj.attributes?.friendly_name || "";
   const items = rawOptions.map((opt) => {
     const value = typeof opt === "object" ? opt.value : opt;
-    const optLabel = labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
+    const optLabel =
+      labels?.[value] ?? (typeof opt === "object" ? opt.label : opt);
     return { label: optLabel, value };
   });
   const itemsJson = JSON.stringify(items).replace(/"/g, "&quot;");
@@ -100,7 +117,15 @@ export function renderComboBox({ card, entityKey, label, labels, disabled = fals
  * @param {number} [options.step] - Step value (defaults to entity attribute or 1)
  * @param {boolean} [options.disabled=false]
  */
-export function renderSlider({ card, entityKey, label, min, max, step, disabled = false }) {
+export function renderSlider({
+  card,
+  entityKey,
+  label,
+  min,
+  max,
+  step,
+  disabled = false,
+}) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -172,7 +197,14 @@ export function renderSwitch({ card, entityKey, label, disabled = false }) {
  * @param {boolean} [options.raised=false]
  * @param {boolean} [options.disabled=false]
  */
-export function renderButton({ card, entityKey, label, icon, raised = false, disabled = false }) {
+export function renderButton({
+  card,
+  entityKey,
+  label,
+  icon,
+  raised = false,
+  disabled = false,
+}) {
   const stateObj = card._state(entityKey);
   if (!stateObj) return "";
 
@@ -183,7 +215,8 @@ export function renderButton({ card, entityKey, label, icon, raised = false, dis
       ${raised ? "raised" : ""}
       ${disabled ? "disabled" : ""}
     >
-      ${icon ? html`<ha-icon icon="${icon}" slot="icon"></ha-icon>` : ""} ${label}
+      ${icon ? html`<ha-icon icon="${icon}" slot="icon"></ha-icon>` : ""}
+      ${label}
     </ha-button>
   `;
 }
@@ -204,7 +237,9 @@ export function attachInputListeners(container, card) {
       try {
         const rawOpts = JSON.parse(select.dataset.options || "[]");
         // Modern Home Assistant accepts an array of { label, value } or strings
-        select.options = rawOpts.map((opt) => (typeof opt === "object" ? opt : { label: opt, value: opt }));
+        select.options = rawOpts.map((opt) =>
+          typeof opt === "object" ? opt : { label: opt, value: opt },
+        );
       } catch (e) {
         console.error("Failed to parse options for ha-select", e);
       }
@@ -238,7 +273,20 @@ export function attachInputListeners(container, card) {
 
   // Handle select / combobox changes
   const handleSelect = (e) => {
-    const target = e.target.closest("ha-select[data-entity-key], ha-combo-box[data-entity-key]");
+    const draftTarget = e.target.closest("ha-select[data-draft-key]");
+    if (draftTarget) {
+      const panelId = draftTarget.dataset.panelId;
+      const key = draftTarget.dataset.draftKey;
+      const value = e.detail?.value ?? draftTarget.value;
+      if (panelId && key && value) {
+        card.setDraftValue(panelId, key, value, false);
+      }
+      return;
+    }
+
+    const target = e.target.closest(
+      "ha-select[data-entity-key], ha-combo-box[data-entity-key]",
+    );
     if (!target) return;
 
     const key = target.dataset.entityKey;
@@ -261,9 +309,39 @@ export function attachInputListeners(container, card) {
 
   container.addEventListener("selected", handleSelect);
   container.addEventListener("value-changed", handleSelect);
+
+  // Live slider input tracking while dragging
+  container.addEventListener("input", (e) => {
+    const draftSlider = e.target.closest("ha-slider[data-draft-key]");
+    if (draftSlider) {
+      const panelId = draftSlider.dataset.panelId;
+      const key = draftSlider.dataset.draftKey;
+      const val = Number(draftSlider.value);
+      if (panelId && key && !isNaN(val)) {
+        card.setDraftValue(panelId, key, val, true);
+      }
+    }
+  });
+
   container.addEventListener("change", (e) => {
+    // If it's a draft slider, commit value on change
+    const draftSlider = e.target.closest("ha-slider[data-draft-key]");
+    if (draftSlider) {
+      const panelId = draftSlider.dataset.panelId;
+      const key = draftSlider.dataset.draftKey;
+      const val = Number(draftSlider.value);
+      if (panelId && key && !isNaN(val)) {
+        card.setDraftValue(panelId, key, val, false);
+      }
+      return;
+    }
+
     // If it's a select, handle it via handleSelect
-    if (e.target.closest("ha-select[data-entity-key], ha-combo-box[data-entity-key]")) {
+    if (
+      e.target.closest(
+        "ha-select[data-entity-key], ha-combo-box[data-entity-key], ha-select[data-draft-key]",
+      )
+    ) {
       handleSelect(e);
       return;
     }
@@ -302,7 +380,71 @@ export function attachInputListeners(container, card) {
 
   // Handle buttons and toggles (<ha-button>, [data-action="toggle"])
   container.addEventListener("click", (e) => {
-    const toggleBtn = e.target.closest("[data-action='toggle'][data-entity-key]");
+    // 1. Toggle panel expansion
+    const togglePanelEl = e.target.closest("[data-action='toggle-panel']");
+    if (togglePanelEl) {
+      const panelId = togglePanelEl.dataset.panelId;
+      if (panelId) {
+        card.togglePanel(panelId);
+        return;
+      }
+    }
+
+    // 2. Cancel panel expansion
+    const cancelBtn = e.target.closest("[data-action='cancel-panel']");
+    if (cancelBtn) {
+      const panelId = cancelBtn.dataset.panelId;
+      if (panelId) {
+        card.cancelPanel(panelId);
+        return;
+      }
+    }
+
+    // 3. Start cooking command
+    const startBtn = e.target.closest("[data-action='start-cooking']");
+    if (startBtn) {
+      const panelId = startBtn.dataset.panelId;
+      if (panelId) {
+        card.startCooking(panelId);
+        return;
+      }
+    }
+
+    // 4. Stop cooking command
+    const stopBtn = e.target.closest("[data-action='stop-cooking']");
+    if (stopBtn) {
+      const panelId = stopBtn.dataset.panelId;
+      if (panelId) {
+        card.stopCooking(panelId);
+        return;
+      }
+    }
+
+    // 4. Preset temperature buttons
+    const tempBtn = e.target.closest("[data-set-temp]");
+    if (tempBtn) {
+      const panelId = tempBtn.dataset.panelId;
+      const temp = Number(tempBtn.dataset.setTemp);
+      if (panelId && !isNaN(temp)) {
+        card.setDraftValue(panelId, "setpoint", temp, false);
+        return;
+      }
+    }
+
+    // 5. Preset time buttons
+    const timeBtn = e.target.closest("[data-set-time]");
+    if (timeBtn) {
+      const panelId = timeBtn.dataset.panelId;
+      const time = Number(timeBtn.dataset.setTime);
+      if (panelId && !isNaN(time)) {
+        card.setDraftValue(panelId, "cookTime", time, false);
+        return;
+      }
+    }
+
+    const toggleBtn = e.target.closest(
+      "[data-action='toggle'][data-entity-key]",
+    );
     if (toggleBtn) {
       const key = toggleBtn.dataset.entityKey;
       const entityId = card._entities?.[key];
