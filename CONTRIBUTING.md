@@ -33,3 +33,26 @@ The easiest way to test changes to this custom card is to serve it locally and t
 4. Browsers aggressively cache Lovelace JavaScript resources. When you update your code:
    - Do a hard refresh in your browser (Cmd + Shift + R).
    - If the browser still hangs onto the old bundle, add a cache-busting query parameter in Settings > Resources (e.g. .../my-custom-card.js?v=2).
+
+## Building
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Build and minify the bundle:
+
+   ```bash
+   npm run build
+   ```
+
+   This generates the production bundle at `dist/samsung-oven-card.js`.
+
+3. For live rebuilding during development:
+   ```bash
+   npm run watch
+   ```
+
+A GitHub Actions workflow automatically builds and minifies the code on every push to `main` and publishes `dist/samsung-oven-card.js`.

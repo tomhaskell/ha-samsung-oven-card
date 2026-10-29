@@ -34,18 +34,12 @@ It provides an appliance-focused interface featuring real-time cooking mode grap
 
 ### Manual Installation
 
-1. Download the files inside the [`src/`](./src/) directory of this repository:
-   - `samsung-oven-card.js`
-   - `samsung-oven-card-editor.js`
-   - `consts.js`
-   - `styles.js`
-   - `oven-icons.js`
-   - `helpers/inputs.js`
+1. Download the bundled file from [`dist/samsung-oven-card.js`](./dist/samsung-oven-card.js) (or build it locally via `npm run build`).
 
-2. Copy the files into your Home Assistant configuration directory under:
+2. Copy `samsung-oven-card.js` into your Home Assistant configuration directory under:
 
    ```text
-   config/www/samsung-oven-card/
+   config/www/samsung-oven-card/samsung-oven-card.js
    ```
 
 3. Add the card as a Dashboard resource:
@@ -99,6 +93,6 @@ standard_times: [15, 30, 60, 90] # optional presets (minutes)
 
 ---
 
-## Development & Testing
+## Development 
 
 Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
