@@ -5,7 +5,9 @@ const html = String.raw;
 export function parseConfigList(val, fallback) {
   if (!val) return fallback;
   if (Array.isArray(val)) {
-    const parsed = val.map((x) => Number(String(x).replace(/[^\d.-]/g, ""))).filter((n) => !isNaN(n));
+    const parsed = val
+      .map((x) => Number(String(x).replace(/[^\d.-]/g, "")))
+      .filter((n) => !isNaN(n));
     return parsed.length ? parsed : fallback;
   }
   if (typeof val === "string") {
@@ -19,14 +21,25 @@ export function parseConfigList(val, fallback) {
 }
 
 export function renderOvenPanel({ card, entityList }) {
-  const panelId = entityList?.[Entities.machineState] || entityList?.[Entities.cookingMode] || "main";
-  const isExpanded = Boolean(card._expandedPanels && card._expandedPanels.has(panelId));
+  const panelId =
+    entityList?.[Entities.machineState] ||
+    entityList?.[Entities.cookingMode] ||
+    "main";
+  const isExpanded = Boolean(
+    card._expandedPanels && card._expandedPanels.has(panelId),
+  );
 
   const cookingMode = card._state(Entities.cookingMode, entityList)?.state;
-  const machineState = card._state(Entities.machineState, entityList)?.state?.toLowerCase() || "idle";
+  const machineState =
+    card._state(Entities.machineState, entityList)?.state?.toLowerCase() ||
+    "idle";
 
-  const rawProgress = Number(card._state(Entities.progressPercent, entityList)?.state);
-  const progress = isNaN(rawProgress) ? 0 : Math.min(100, Math.max(0, rawProgress));
+  const rawProgress = Number(
+    card._state(Entities.progressPercent, entityList)?.state,
+  );
+  const progress = isNaN(rawProgress)
+    ? 0
+    : Math.min(100, Math.max(0, rawProgress));
 
   const arcLength = 187;
   const dashOffset = arcLength - (arcLength * progress) / 100;
@@ -34,7 +47,8 @@ export function renderOvenPanel({ card, entityList }) {
 
   const isMicrowave =
     Boolean(cookingMode) &&
-    (cookingMode.toLowerCase().includes("micro_wave") || cookingMode.toLowerCase().includes("microwave"));
+    (cookingMode.toLowerCase().includes("micro_wave") ||
+      cookingMode.toLowerCase().includes("microwave"));
   const isActive = machineState === "active";
 
   const runningObj = card._state(Entities.running, entityList);
@@ -45,12 +59,22 @@ export function renderOvenPanel({ card, entityList }) {
     machineState === "preheat" ||
     machineState === "running";
 
+  const smartControlObj =
+    card._state(Entities.smartControl, entityList) ||
+    card._state(Entities.smartControl);
+  const isRemoteEnabled = smartControlObj
+    ? smartControlObj.state === "on"
+    : true;
+
   const tempObj = card._state(Entities.temperature, entityList);
   const setpointObj = card._state(Entities.setpoint, entityList);
 
   const currentTemp = tempObj ? Number(tempObj.state) : NaN;
   const targetTemp = setpointObj ? Number(setpointObj.state) : NaN;
-  const tempUnit = tempObj?.attributes?.unit_of_measurement || setpointObj?.attributes?.unit_of_measurement || "°C";
+  const tempUnit =
+    tempObj?.attributes?.unit_of_measurement ||
+    setpointObj?.attributes?.unit_of_measurement ||
+    "°C";
 
   let tempStatusClass = "neutral";
   let trendArrow = "";
@@ -60,7 +84,9 @@ export function renderOvenPanel({ card, entityList }) {
   let subDisplay = "";
 
   if (isMicrowave) {
-    const powerObj = card._state(Entities.powerLevel, entityList) || card._state(Entities.power, entityList);
+    const powerObj =
+      card._state(Entities.powerLevel, entityList) ||
+      card._state(Entities.power, entityList);
     const val = powerObj?.state ?? setpointObj?.state ?? "--";
     const unit =
       powerObj?.attributes?.unit_of_measurement ||
@@ -114,8 +140,14 @@ export function renderOvenPanel({ card, entityList }) {
     const draft = card._getDraft(panelId, entityList);
 
     // Standard presets (configurable)
-    const standardTemps = parseConfigList(card._config?.standard_temperatures, [160, 180, 200, 220]);
-    const standardTimes = parseConfigList(card._config?.standard_times, [15, 30, 60, 90]);
+    const standardTemps = parseConfigList(
+      card._config?.standard_temperatures,
+      [160, 180, 200, 220],
+    );
+    const standardTimes = parseConfigList(
+      card._config?.standard_times,
+      [15, 30, 60, 90],
+    );
 
     // Cooking mode select options
     const cookingModeObj = card._state(Entities.cookingMode, entityList);
@@ -123,7 +155,8 @@ export function renderOvenPanel({ card, entityList }) {
     const currentDraftMode = draft.cookingMode || "";
     const modeItems = modeOptions.map((opt) => {
       const val = typeof opt === "object" ? opt.value : opt;
-      const label = CookingModeLabels[val] || (typeof opt === "object" ? opt.label : opt);
+      const label =
+        CookingModeLabels[val] || (typeof opt === "object" ? opt.label : opt);
       return { value: val, label };
     });
     const modeOptionsJson = JSON.stringify(modeItems).replace(/"/g, "&quot;");
@@ -165,7 +198,10 @@ export function renderOvenPanel({ card, entityList }) {
                   ${modeItems
                     .map(
                       (item) => html`
-                        <ha-list-item value="${item.value}" ${item.value === currentDraftMode ? "selected" : ""}>
+                        <ha-list-item
+                          value="${item.value}"
+                          ${item.value === currentDraftMode ? "selected" : ""}
+                        >
                           ${item.label}
                         </ha-list-item>
                       `,
@@ -179,7 +215,11 @@ export function renderOvenPanel({ card, entityList }) {
         <div class="control-row">
           <div class="input-slider-header">
             <span class="input-slider-label">Target Temperature</span>
-            <span class="input-slider-value" data-for="setpoint" data-panel-id="${panelId}">
+            <span
+              class="input-slider-value"
+              data-for="setpoint"
+              data-panel-id="${panelId}"
+            >
               ${currentDraftSetpoint} ${setpointUnit}
             </span>
           </div>
@@ -200,7 +240,10 @@ export function renderOvenPanel({ card, entityList }) {
                 (temp) => html`
                   <button
                     type="button"
-                    class="preset-btn ${Number(currentDraftSetpoint) === Number(temp) ? "active" : ""}"
+                    class="preset-btn ${Number(currentDraftSetpoint) ===
+                    Number(temp)
+                      ? "active"
+                      : ""}"
                     data-panel-id="${panelId}"
                     data-set-temp="${temp}"
                   >
@@ -215,7 +258,11 @@ export function renderOvenPanel({ card, entityList }) {
         <div class="control-row">
           <div class="input-slider-header">
             <span class="input-slider-label">Cook Time</span>
-            <span class="input-slider-value" data-for="cookTime" data-panel-id="${panelId}">
+            <span
+              class="input-slider-value"
+              data-for="cookTime"
+              data-panel-id="${panelId}"
+            >
               ${currentDraftCookTime} ${cookTimeUnit}
             </span>
           </div>
@@ -236,7 +283,10 @@ export function renderOvenPanel({ card, entityList }) {
                 (t) => html`
                   <button
                     type="button"
-                    class="preset-btn ${Number(currentDraftCookTime) === Number(t) ? "active" : ""}"
+                    class="preset-btn ${Number(currentDraftCookTime) ===
+                    Number(t)
+                      ? "active"
+                      : ""}"
                     data-panel-id="${panelId}"
                     data-set-time="${t}"
                   >
@@ -251,15 +301,36 @@ export function renderOvenPanel({ card, entityList }) {
         <div class="expansion-actions">
           ${isRunning
             ? html`
-                <ha-button class="stop-btn" data-panel-id="${panelId}" data-action="stop-cooking">
+                <ha-button
+                  class="stop-btn"
+                  data-panel-id="${panelId}"
+                  data-action="stop-cooking"
+                >
+                  <ha-icon icon="mdi:stop" slot="start"></ha-icon>
                   <ha-icon icon="mdi:stop" slot="icon"></ha-icon>
                   Stop
                 </ha-button>
               `
             : ""}
           <div class="action-spacer"></div>
-          <ha-button class="cancel-btn" data-panel-id="${panelId}" data-action="cancel-panel"> Cancel </ha-button>
-          <ha-button class="start-btn" raised data-panel-id="${panelId}" data-action="start-cooking">
+          <ha-button
+            class="cancel-btn"
+            data-panel-id="${panelId}"
+            data-action="cancel-panel"
+          >
+            Cancel
+          </ha-button>
+          <ha-button
+            class="start-btn"
+            raised
+            data-panel-id="${panelId}"
+            data-action="start-cooking"
+            ${!isRemoteEnabled ? "disabled" : ""}
+            title="${!isRemoteEnabled
+              ? "Remote control is disabled on the oven"
+              : "Start cooking"}"
+          >
+            <ha-icon icon="mdi:play" slot="start"></ha-icon>
             <ha-icon icon="mdi:play" slot="icon"></ha-icon>
             Start
           </ha-button>
@@ -274,12 +345,20 @@ export function renderOvenPanel({ card, entityList }) {
         class="oven-panel clickable ${isExpanded ? "active-expanded" : ""}"
         data-panel-id="${panelId}"
         data-action="toggle-panel"
-        title="${isExpanded ? "Click to collapse" : "Click to set cooking controls"}"
+        title="${isExpanded
+          ? "Click to collapse"
+          : "Click to set cooking controls"}"
       >
         <div class="oven-mode-panel">
           <div class="oven-progress-wrapper">
             <svg class="progress-ring" viewBox="0 0 100 100">
-              <circle class="progress-track" cx="50" cy="50" r="44" transform="rotate(148 50 50)" />
+              <circle
+                class="progress-track"
+                cx="50"
+                cy="50"
+                r="44"
+                transform="rotate(148 50 50)"
+              />
               <circle
                 class="progress-bar ${machineState}"
                 cx="50"
@@ -289,9 +368,13 @@ export function renderOvenPanel({ card, entityList }) {
                 style="stroke-dashoffset: ${dashOffset};"
               />
             </svg>
-            <div class="oven-mode ${machineState}">${getOvenIconSvg(cookingMode)}</div>
+            <div class="oven-mode ${machineState}">
+              ${getOvenIconSvg(cookingMode)}
+            </div>
             <div class="oven-mode-name">
-              ${card._hass.formatEntityState(card._state(Entities.cookingMode, entityList))}
+              ${card._hass.formatEntityState(
+                card._state(Entities.cookingMode, entityList),
+              )}
             </div>
           </div>
         </div>
@@ -300,13 +383,21 @@ export function renderOvenPanel({ card, entityList }) {
             <span class="temp-val">${mainValue}</span>${mainUnit
               ? html`<span class="temp-unit">${mainUnit}</span>`
               : ""}
-            ${trendArrow ? html`<span class="temp-arrow ${arrowClass}">${trendArrow}</span>` : ""}
+            ${trendArrow
+              ? html`<span class="temp-arrow ${arrowClass}"
+                  >${trendArrow}</span
+                >`
+              : ""}
           </div>
-          ${subDisplay ? html`<div class="temp-secondary">${subDisplay}</div>` : ""}
+          ${subDisplay
+            ? html`<div class="temp-secondary">${subDisplay}</div>`
+            : ""}
           <div class="oven-time-remaining">${timeRemaining}</div>
         </div>
         <div class="expand-chevron">
-          <ha-icon icon="${isExpanded ? "mdi:chevron-up" : "mdi:chevron-down"}"></ha-icon>
+          <ha-icon
+            icon="${isExpanded ? "mdi:chevron-up" : "mdi:chevron-down"}"
+          ></ha-icon>
         </div>
       </div>
       ${controlsHtml}

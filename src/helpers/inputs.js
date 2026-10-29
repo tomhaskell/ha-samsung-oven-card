@@ -215,7 +215,12 @@ export function renderButton({
       ${raised ? "raised" : ""}
       ${disabled ? "disabled" : ""}
     >
-      ${icon ? html`<ha-icon icon="${icon}" slot="icon"></ha-icon>` : ""}
+      ${icon
+        ? html`
+            <ha-icon icon="${icon}" slot="start"></ha-icon>
+            <ha-icon icon="${icon}" slot="icon"></ha-icon>
+          `
+        : ""}
       ${label}
     </ha-button>
   `;
@@ -403,6 +408,7 @@ export function attachInputListeners(container, card) {
     // 3. Start cooking command
     const startBtn = e.target.closest("[data-action='start-cooking']");
     if (startBtn) {
+      if (startBtn.hasAttribute("disabled") || startBtn.disabled) return;
       const panelId = startBtn.dataset.panelId;
       if (panelId) {
         card.startCooking(panelId);
