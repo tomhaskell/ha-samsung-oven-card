@@ -71,7 +71,25 @@ export function getLocalThingsOvenDevices(hass) {
   }));
 }
 
-export class SamsungOvenCardEditor extends HTMLElement {
+export function renderField(id, label) {
+  if (customElements.get("ha-input")) {
+    return html`<ha-input id="${id}" label="${label}"></ha-input>`;
+  }
+  if (customElements.get("ha-textfield")) {
+    return html`<ha-textfield id="${id}" label="${label}"></ha-textfield>`;
+  }
+  if (customElements.get("mwc-textfield")) {
+    return html`<mwc-textfield id="${id}" label="${label}"></mwc-textfield>`;
+  }
+  return html`
+    <div class="ha-textfield-fallback">
+      <label for="${id}">${label}</label>
+      <input type="text" id="${id}" />
+    </div>
+  `;
+}
+
+class SamsungOvenCardEditor extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -128,8 +146,39 @@ export class SamsungOvenCardEditor extends HTMLElement {
             padding: 8px 0;
           }
           ha-select,
-          ha-textfield {
+          ha-textfield,
+          ha-input,
+          mwc-textfield {
             width: 100%;
+          }
+          .ha-textfield-fallback {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+          }
+          .ha-textfield-fallback label {
+            font-size: var(--ha-font-size-s, 12px);
+            color: var(--secondary-text-color);
+            font-weight: 500;
+          }
+          .ha-textfield-fallback input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--divider-color, rgba(127, 127, 127, 0.3));
+            background: var(
+              --input-fill-color,
+              var(--secondary-background-color, rgba(127, 127, 127, 0.08))
+            );
+            color: var(--primary-text-color);
+            font-size: var(--ha-font-size-m, 14px);
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s ease;
+          }
+          .ha-textfield-fallback input:focus {
+            border-color: var(--primary-color, #03a9f4);
           }
           .help-text {
             font-size: var(--ha-font-size-s, 12px);
@@ -150,18 +199,15 @@ export class SamsungOvenCardEditor extends HTMLElement {
             naturalMenuWidth
           ></ha-select>
           <div id="device-help" class="help-text"></div>
-          <ha-textfield
-            id="title-input"
-            label="Card Title (Optional)"
-          ></ha-textfield>
-          <ha-textfield
-            id="temperatures-input"
-            label="Standard Temperatures (e.g. 160, 180, 200, 220)"
-          ></ha-textfield>
-          <ha-textfield
-            id="times-input"
-            label="Standard Cook Times (minutes, e.g. 15, 30, 60, 90)"
-          ></ha-textfield>
+          ${renderField("title-input", "Card Title (Optional)")}
+          ${renderField(
+            "temperatures-input",
+            "Standard Temperatures (e.g. 160, 180, 200, 220)",
+          )}
+          ${renderField(
+            "times-input",
+            "Standard Cook Times (minutes, e.g. 15, 30, 60, 90)",
+          )}
         </div>
       `;
 
@@ -177,19 +223,25 @@ export class SamsungOvenCardEditor extends HTMLElement {
       select?.addEventListener("closed", (e) => e.stopPropagation());
 
       const titleInput = this.shadowRoot.querySelector("#title-input");
-      titleInput?.addEventListener("input", (ev) => {
+      const handleTitle = (ev) => {
         this._valueChanged("title", ev.target.value);
-      });
+      };
+      titleInput?.addEventListener("input", handleTitle);
+      titleInput?.addEventListener("change", handleTitle);
 
       const tempsInput = this.shadowRoot.querySelector("#temperatures-input");
-      tempsInput?.addEventListener("input", (ev) => {
+      const handleTemps = (ev) => {
         this._valueChanged("standard_temperatures", ev.target.value);
-      });
+      };
+      tempsInput?.addEventListener("input", handleTemps);
+      tempsInput?.addEventListener("change", handleTemps);
 
       const timesInput = this.shadowRoot.querySelector("#times-input");
-      timesInput?.addEventListener("input", (ev) => {
+      const handleTimes = (ev) => {
         this._valueChanged("standard_times", ev.target.value);
-      });
+      };
+      timesInput?.addEventListener("input", handleTimes);
+      timesInput?.addEventListener("change", handleTimes);
 
       this._initialized = true;
     }

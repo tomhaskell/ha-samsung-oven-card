@@ -46,6 +46,14 @@ class SamsungOvenCard extends HTMLElement {
   }
 
   static async getConfigElement() {
+    if (window.loadCardHelpers) {
+      try {
+        const helpers = await window.loadCardHelpers();
+        await helpers.createCardElement?.({ type: "entities", entities: [] });
+      } catch (e) {
+        // ignore
+      }
+    }
     return document.createElement("samsung-oven-card-editor");
   }
 
