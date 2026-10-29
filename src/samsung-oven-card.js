@@ -1,6 +1,7 @@
 import { SUFFIXES, Entities, CookingModeLabels } from "./consts.js";
 import { renderSelect, attachInputListeners } from "./helpers/inputs.js";
 import { getOvenIconSvg } from "./oven-icons.js";
+import "./samsung-oven-card-editor.js";
 const html = String.raw;
 import { styles } from "./styles.js";
 
@@ -16,6 +17,31 @@ class SamsungOvenCard extends HTMLElement {
     this._title = "";
     this._timer = null;
     attachInputListeners(this.shadowRoot, this);
+  }
+
+  static getStubConfig(hass) {
+    const devices = Object.values(hass?.devices || {});
+    const match = devices.find((d) => {
+      const name = (d.name_by_user || d.name || "").toLowerCase();
+      const isLt =
+        d.identifiers?.some(([domain]) =>
+          String(domain).toLowerCase().includes("localthings"),
+        ) ||
+        d.manufacturer?.toLowerCase().includes("localthings") ||
+        Object.values(hass?.entities || {}).some(
+          (e) =>
+            (e.device_id === d.id || e.di === d.id) &&
+            String(e.platform || e.pl || "")
+              .toLowerCase()
+              .includes("localthings"),
+        );
+      return isLt && name.includes("oven");
+    });
+    return { device_id: match ? match.id : "" };
+  }
+
+  static async getConfigElement() {
+    return document.createElement("samsung-oven-card-editor");
   }
 
   connectedCallback() {
@@ -58,7 +84,10 @@ class SamsungOvenCard extends HTMLElement {
       return "--:--";
     }
 
-    const diffSec = Math.max(0, Math.floor((finishDate.getTime() - Date.now()) / 1000));
+    const diffSec = Math.max(
+      0,
+      Math.floor((finishDate.getTime() - Date.now()) / 1000),
+    );
     const hours = Math.floor(diffSec / 3600);
     const minutes = Math.floor((diffSec % 3600) / 60);
     const seconds = diffSec % 60;
@@ -109,7 +138,10 @@ class SamsungOvenCard extends HTMLElement {
       return "--:--";
     }
 
-    const diffSec = Math.max(0, Math.floor((finishDate.getTime() - Date.now()) / 1000));
+    const diffSec = Math.max(
+      0,
+      Math.floor((finishDate.getTime() - Date.now()) / 1000),
+    );
     const hours = Math.floor(diffSec / 3600);
     const minutes = Math.floor((diffSec % 3600) / 60);
     const seconds = diffSec % 60;
@@ -135,7 +167,8 @@ class SamsungOvenCard extends HTMLElement {
   // Called with a new hass object on every change in the home.
   set hass(hass) {
     this._hass = hass;
-    if (!this._entities && !this._discovering && this._config?.device_id) void this._discover();
+    if (!this._entities && !this._discovering && this._config?.device_id)
+      void this._discover();
 
     if (!this._config.title) {
       const dev = this._hass.devices[this._config.device_id];
@@ -197,7 +230,9 @@ class SamsungOvenCard extends HTMLElement {
   // generate the HTML for displaying the card
   _render() {
     if (!this._config || !this._hass) {
-      this.innerHTML = this._frame(`<div class="message"><span class="spinner"></span>Loading...</div>`);
+      this.innerHTML = this._frame(
+        `<div class="message"><span class="spinner"></span>Loading...</div>`,
+      );
       return;
     }
     if (!this._entities || !Object.keys(this._entities).length) {
@@ -213,10 +248,13 @@ class SamsungOvenCard extends HTMLElement {
     }
 
     const cookingMode = this._state(Entities.cookingMode)?.state;
-    const machineState = this._state(Entities.machineState)?.state?.toLowerCase() || "idle";
+    const machineState =
+      this._state(Entities.machineState)?.state?.toLowerCase() || "idle";
 
     const rawProgress = Number(this._state(Entities.progressPercent)?.state);
-    const progress = isNaN(rawProgress) ? 0 : Math.min(100, Math.max(0, rawProgress));
+    const progress = isNaN(rawProgress)
+      ? 0
+      : Math.min(100, Math.max(0, rawProgress));
 
     // 270-degree arc leaving a 90-degree gap at the bottom (circumference 276.46 * 0.75 = 207.35)
     const arcLength = 207.35;
@@ -225,7 +263,8 @@ class SamsungOvenCard extends HTMLElement {
 
     const isMicrowave =
       Boolean(cookingMode) &&
-      (cookingMode.toLowerCase().includes("micro_wave") || cookingMode.toLowerCase().includes("microwave"));
+      (cookingMode.toLowerCase().includes("micro_wave") ||
+        cookingMode.toLowerCase().includes("microwave"));
     const isActive = machineState === "active";
 
     const tempObj = this._state(Entities.temperature);
@@ -233,7 +272,10 @@ class SamsungOvenCard extends HTMLElement {
 
     const currentTemp = tempObj ? Number(tempObj.state) : NaN;
     const targetTemp = setpointObj ? Number(setpointObj.state) : NaN;
-    const tempUnit = tempObj?.attributes?.unit_of_measurement || setpointObj?.attributes?.unit_of_measurement || "°C";
+    const tempUnit =
+      tempObj?.attributes?.unit_of_measurement ||
+      setpointObj?.attributes?.unit_of_measurement ||
+      "°C";
 
     let tempStatusClass = "neutral";
     let trendArrow = "";
@@ -243,7 +285,8 @@ class SamsungOvenCard extends HTMLElement {
     let subDisplay = "";
 
     if (isMicrowave) {
-      const powerObj = this._state(Entities.powerLevel) || this._state(Entities.power);
+      const powerObj =
+        this._state(Entities.powerLevel) || this._state(Entities.power);
       const val = powerObj?.state ?? setpointObj?.state ?? "--";
       const unit =
         powerObj?.attributes?.unit_of_measurement ||
@@ -267,7 +310,9 @@ class SamsungOvenCard extends HTMLElement {
 
       if (isActive) {
         if (!isNaN(targetTemp) && targetTemp > 0) {
-          const targetUnit = tempUnit.startsWith("°") ? tempUnit : `°${tempUnit}`;
+          const targetUnit = tempUnit.startsWith("°")
+            ? tempUnit
+            : `°${tempUnit}`;
           subDisplay = `Target: ${Math.round(targetTemp)}${targetUnit}`;
 
           if (!isNaN(currentTemp)) {
@@ -295,7 +340,8 @@ class SamsungOvenCard extends HTMLElement {
     const smartControlOn = smartControlObj?.state === "on";
 
     const childLockObj = this._state(Entities.childLock);
-    const childLockOn = childLockObj?.state === "off" || childLockObj?.state === "locked";
+    const childLockOn =
+      childLockObj?.state === "off" || childLockObj?.state === "locked";
 
     const doorObj = this._state(Entities.door);
     const doorOpen = doorObj?.state === "on" || doorObj?.state === "open";
@@ -309,7 +355,9 @@ class SamsungOvenCard extends HTMLElement {
     this.shadowRoot.innerHTML = this._frame(html`
       <div class="card-header">
         <span class="title">${this._config.title || this._title}</span>
-        <span class="${this._state(Entities.cavityState)?.state?.toLowerCase()}">
+        <span
+          class="${this._state(Entities.cavityState)?.state?.toLowerCase()}"
+        >
           ${this._hass.formatEntityState(this._state(Entities.cavityState))}
         </span>
       </div>
@@ -323,7 +371,13 @@ class SamsungOvenCard extends HTMLElement {
         <div class="card-section">
           <div class="oven-progress-wrapper">
             <svg class="progress-ring" viewBox="0 0 100 100">
-              <circle class="progress-track" cx="50" cy="50" r="44" transform="rotate(135 50 50)" />
+              <circle
+                class="progress-track"
+                cx="50"
+                cy="50"
+                r="44"
+                transform="rotate(135 50 50)"
+              />
               <circle
                 class="progress-bar ${machineState}"
                 cx="50"
@@ -333,33 +387,56 @@ class SamsungOvenCard extends HTMLElement {
                 style="stroke-dashoffset: ${dashOffset};"
               />
             </svg>
-            <div class="oven-mode ${machineState}">${getOvenIconSvg(cookingMode)}</div>
+            <div class="oven-mode ${machineState}">
+              ${getOvenIconSvg(cookingMode)}
+            </div>
             <div class="oven-time-remaining">${timeRemaining}</div>
           </div>
           <div class="oven-temp-area">
             <div class="temp-primary ${tempStatusClass}">
               <span class="temp-val">${mainValue}</span>
-              ${mainUnit ? html`<span class="temp-unit">${mainUnit}</span>` : ""}
-              ${trendArrow ? html`<span class="temp-arrow ${arrowClass}">${trendArrow}</span>` : ""}
+              ${mainUnit
+                ? html`<span class="temp-unit">${mainUnit}</span>`
+                : ""}
+              ${trendArrow
+                ? html`<span class="temp-arrow ${arrowClass}"
+                    >${trendArrow}</span
+                  >`
+                : ""}
             </div>
-            ${subDisplay ? html`<div class="temp-secondary">${subDisplay}</div>` : ""}
+            ${subDisplay
+              ? html`<div class="temp-secondary">${subDisplay}</div>`
+              : ""}
           </div>
         </div>
         <div class="bottom-icon-bar">
           <div
             class="icon-indicator ${smartControlOn ? "active" : ""}"
-            title="Smart Control: ${smartControlObj ? this._hass.formatEntityState(smartControlObj) : "off"}"
+            title="Smart Control: ${smartControlObj
+              ? this._hass.formatEntityState(smartControlObj)
+              : "off"}"
           >
-            <ha-icon icon="${smartControlOn ? "mdi:remote" : "mdi:remote-off"}"></ha-icon>
+            <ha-icon
+              icon="${smartControlOn ? "mdi:remote" : "mdi:remote-off"}"
+            ></ha-icon>
           </div>
           <div
             class="icon-indicator ${childLockOn ? "active lock" : ""}"
-            title="Child Lock: ${childLockObj ? this._hass.formatEntityState(childLockObj) : "off"}"
+            title="Child Lock: ${childLockObj
+              ? this._hass.formatEntityState(childLockObj)
+              : "off"}"
           >
-            <ha-icon icon="${childLockOn ? "mdi:lock" : "mdi:lock-open-variant"}"></ha-icon>
+            <ha-icon
+              icon="${childLockOn ? "mdi:lock" : "mdi:lock-open-variant"}"
+            ></ha-icon>
           </div>
-          <div class="icon-indicator ${doorOpen ? "active door" : ""}" title="Door: ${doorOpen ? "Open" : "Closed"}">
-            <ha-icon icon="${doorOpen ? "mdi:door-open" : "mdi:door-closed"}"></ha-icon>
+          <div
+            class="icon-indicator ${doorOpen ? "active door" : ""}"
+            title="Door: ${doorOpen ? "Open" : "Closed"}"
+          >
+            <ha-icon
+              icon="${doorOpen ? "mdi:door-open" : "mdi:door-closed"}"
+            ></ha-icon>
           </div>
           <button
             class="icon-indicator clickable ${soundOn ? "active" : ""}"
@@ -367,7 +444,9 @@ class SamsungOvenCard extends HTMLElement {
             data-entity-key="${Entities.sound}"
             title="Sound: ${soundOn ? "On" : "Off"} (Click to toggle)"
           >
-            <ha-icon icon="${soundOn ? "mdi:volume-high" : "mdi:volume-off"}"></ha-icon>
+            <ha-icon
+              icon="${soundOn ? "mdi:volume-high" : "mdi:volume-off"}"
+            ></ha-icon>
           </button>
           <button
             class="icon-indicator clickable ${lampOn ? "active lamp" : ""}"
@@ -375,7 +454,9 @@ class SamsungOvenCard extends HTMLElement {
             data-entity-key="${Entities.lamp}"
             title="Lamp: ${lampOn ? "On" : "Off"} (Click to toggle)"
           >
-            <ha-icon icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"></ha-icon>
+            <ha-icon
+              icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"
+            ></ha-icon>
           </button>
         </div>
       </div>
@@ -418,7 +499,18 @@ class SamsungOvenCard extends HTMLElement {
   }
 }
 
-if (!customElements.get("samsung-oven-card")) customElements.define("samsung-oven-card", SamsungOvenCard);
+if (!customElements.get("samsung-oven-card"))
+  customElements.define("samsung-oven-card", SamsungOvenCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "samsung-oven-card",
+  name: "Samsung Oven Card",
+  description:
+    "Provides status and control of your LocalThings-connected Samsung Oven",
+  preview: true,
+  documentationURL: "https://github.com/tomhaskell/ha-samsung-oven-card",
+});
 
 console.info(
   `%c SAMSUNG-OVEN-CARD %c ${VERSION} `,
