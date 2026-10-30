@@ -269,9 +269,9 @@ class SamsungOvenCard extends HTMLElement {
     if (!this._entities && !this._discovering && this._config?.device_id)
       void this._discover();
 
-    if (!this._config.title) {
-      const dev = this._hass.devices[this._config.device_id];
-      this._title = dev.name_by_user || dev.name;
+    if (this._config && !this._config.title) {
+      const dev = this._hass.devices?.[this._config.device_id];
+      this._title = dev?.name_by_user || dev?.name || "";
     }
 
     // Only re-render if tracked entities have actually changed. Because HA updates
@@ -357,7 +357,7 @@ class SamsungOvenCard extends HTMLElement {
   // generate the HTML for displaying the card
   _render() {
     if (!this._config || !this._hass) {
-      this.innerHTML = this._frame(
+      this.shadowRoot.innerHTML = this._frame(
         html`<div class="message">
           <span class="spinner"></span>Loading...
         </div>`,
@@ -365,7 +365,7 @@ class SamsungOvenCard extends HTMLElement {
       return;
     }
     if (!this._entities || !Object.keys(this._entities).length) {
-      this.innerHTML = this._frame(
+      this.shadowRoot.innerHTML = this._frame(
         html`<div class="message error">
           <ha-icon icon="mdi:alert-circle-outline"></ha-icon>No content
         </div>`,
@@ -508,24 +508,36 @@ class SamsungOvenCard extends HTMLElement {
   // (options, min, max, step) used to detect whether entity state has changed.
   _stateSignature() {
     if (!this._hass || !this._entities) return "";
+
+    const snapshotEntity = (id) => {
+      const state = this._hass.states?.[id];
+      return state
+        ? [
+            state.state,
+            state.attributes?.options,
+            state.attributes?.min,
+            state.attributes?.max,
+            state.attributes?.step,
+          ]
+        : null;
+    };
+
+    const mainEntries = Object.entries(this._entities).map(([key, id]) => [
+      key,
+      snapshotEntity(id),
+    ]);
+
+    const subdeviceEntries = Object.entries(
+      this._subdeviceEntities || {},
+    ).flatMap(([subId, subEntities]) =>
+      Object.entries(subEntities || {}).map(([key, id]) => [
+        `${subId}:${key}`,
+        snapshotEntity(id),
+      ]),
+    );
+
     return JSON.stringify(
-      Object.fromEntries(
-        Object.entries(this._entities).map(([key, id]) => {
-          const state = this._hass.states[id];
-          return [
-            key,
-            state
-              ? [
-                  state.state,
-                  state.attributes?.options,
-                  state.attributes?.min,
-                  state.attributes?.max,
-                  state.attributes?.step,
-                ]
-              : null,
-          ];
-        }),
-      ),
+      Object.fromEntries([...mainEntries, ...subdeviceEntries]),
     );
   }
 }
