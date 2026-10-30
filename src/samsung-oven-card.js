@@ -454,12 +454,31 @@ class SamsungOvenCard extends HTMLElement {
 
   // Height in the masonry view, in units of 50 pixels.
   getCardSize() {
-    return 1;
+    // Check if dual-zone split cavity mode is active
+    const modes = this._state(Entities.cookingMode)?.attributes?.options || [];
+    const isSplit = Boolean(
+      this._subdevices &&
+      Object.keys(this._subdevices).length > 0 &&
+      modes.some((m) => String(m).toLowerCase().startsWith("upper")),
+    );
+    // Base card height is ~240px (4-5 units); dual-zone is ~360px (7 units)
+    return isSplit ? 7 : 5;
   }
 
   // Size in the grid of the sections view.
   getGridOptions() {
-    return { columns: 6, rows: 1, min_rows: 1 };
+    const modes = this._state(Entities.cookingMode)?.attributes?.options || [];
+    const isSplit = Boolean(
+      this._subdevices &&
+      Object.keys(this._subdevices).length > 0 &&
+      modes.some((m) => String(m).toLowerCase().startsWith("upper")),
+    );
+    return {
+      columns: 12,
+      min_columns: 6,
+      rows: isSplit ? 6 : 4,
+      min_rows: isSplit ? 5 : 3,
+    };
   }
 
   // Returns a serialized snapshot of tracked entity states and key attributes
