@@ -1,0 +1,73 @@
+{
+  "common": {
+    "name": "Samsung Oven Card",
+    "description": "Provides status and control of your LocalThings-connected Samsung Oven",
+    "loading": "Loading...",
+    "no_content": "No content",
+    "target": "Target",
+    "target_colon": "Target:",
+    "power_level": "Power Level"
+  },
+  "status": {
+    "smart_control": "Smart Control",
+    "child_lock": "Child Lock",
+    "door": "Door",
+    "sound": "Sound",
+    "lamp": "Lamp",
+    "open": "Open",
+    "closed": "Closed",
+    "on": "On",
+    "off": "Off",
+    "click_to_toggle": "Click to toggle"
+  },
+  "controls": {
+    "cooking_mode": "Cooking Mode",
+    "target_temperature": "Target Temperature",
+    "cook_time": "Cook Time",
+    "start": "Start",
+    "stop": "Stop",
+    "cancel": "Cancel",
+    "start_cooking": "Start cooking",
+    "stop_cooking": "Stop cooking cycle",
+    "cancel_staged": "Cancel staged options",
+    "remote_disabled_tooltip": "Remote control is disabled on the oven",
+    "click_to_set": "Click to set cooking controls",
+    "click_to_collapse": "Click to collapse"
+  },
+  "editor": {
+    "oven_device": "Oven Device",
+    "card_title": "Card Title (Optional)",
+    "standard_temperatures": "Standard Temperatures (Optional. Default: 160, 180, 200, 220)",
+    "standard_times": "Standard Cook Times (Optional, minutes. Default: 15, 30, 60, 90)",
+    "no_devices_found": "No LocalThings devices with 'oven' in their name were found.",
+    "found_devices": "Found {count} oven device{plural}."
+  },
+  "modes": {
+    "air_fryer": "Air Fryer",
+    "autocook": "Autocook",
+    "bottom_heat_plus_convection": "Bottom Heat + Fan",
+    "convection": "Convection",
+    "conventional": "No Fan",
+    "deodorization": "Deodorization",
+    "fan_conventional": "Fan Conventional",
+    "fan_grill": "Fan + Grill",
+    "keep_warm": "Keep Warm",
+    "large_grill": "Large Grill",
+    "lower_autocook": "Lower Autocook",
+    "lower_bottom_convection": "Lower Bottom Convection",
+    "lower_bottom": "Lower Bottom",
+    "lower_convection": "Lower Convection",
+    "micro_wave_convection": "Microwave + Convection",
+    "micro_wave_grill": "Microwave + Grill",
+    "micro_wave": "Microwave",
+    "no_operation": "No Operation",
+    "plate_warm": "Plate Warm",
+    "small_grill": "Small Grill",
+    "steam_clean": "Steam Clean",
+    "top_heat_plus_convection": "Top Heat + Fan",
+    "upper_autocook": "Upper Autocook",
+    "upper_convection": "Upper Convection",
+    "upper_large_grill": "Upper Large Grill",
+    "upper_top_convection": "Upper Top Convection"
+  }
+}

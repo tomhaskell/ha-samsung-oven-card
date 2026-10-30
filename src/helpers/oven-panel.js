@@ -1,5 +1,6 @@
-import { Entities, CookingModeLabels } from "../consts.js";
+import { Entities } from "../consts.js";
 import { getOvenIconSvg } from "./oven-icons.js";
+import { localize, localizeMode } from "../localize/localize.js";
 const html = String.raw;
 
 export function parseConfigList(val, fallback) {
@@ -19,6 +20,7 @@ export function parseConfigList(val, fallback) {
 }
 
 export function renderOvenPanel({ card, entityList }) {
+  const lang = card._hass?.language || card._hass?.locale?.language;
   const panelId = entityList?.[Entities.machineState] || entityList?.[Entities.cookingMode] || "main";
   const isExpanded = Boolean(card._expandedPanels && card._expandedPanels.has(panelId));
 
@@ -74,8 +76,8 @@ export function renderOvenPanel({ card, entityList }) {
     if (isActive) {
       subDisplay =
         setpointObj && powerObj && setpointObj.state !== powerObj.state
-          ? `Target: ${setpointObj.state} ${unit}`.trim()
-          : "Power Level";
+          ? `${localize("common.target_colon", lang)} ${setpointObj.state} ${unit}`.trim()
+          : localize("common.power_level", lang);
     }
   } else {
     if (!isNaN(currentTemp)) {
@@ -88,7 +90,7 @@ export function renderOvenPanel({ card, entityList }) {
     if (isActive) {
       if (!isNaN(targetTemp) && targetTemp > 0) {
         const targetUnit = tempUnit.startsWith("°") ? tempUnit : `°${tempUnit}`;
-        subDisplay = `Target: ${Math.round(targetTemp)}${targetUnit}`;
+        subDisplay = `${localize("common.target_colon", lang)} ${Math.round(targetTemp)}${targetUnit}`;
 
         if (!isNaN(currentTemp)) {
           const diff = currentTemp - targetTemp;
@@ -106,7 +108,7 @@ export function renderOvenPanel({ card, entityList }) {
           }
         }
       } else if (setpointObj?.state) {
-        subDisplay = `Target: ${card._hass.formatEntityState(setpointObj)}`;
+        subDisplay = `${localize("common.target_colon", lang)} ${card._hass.formatEntityState(setpointObj)}`;
       }
     }
   }
@@ -126,7 +128,7 @@ export function renderOvenPanel({ card, entityList }) {
     const currentDraftMode = draft.cookingMode || "";
     const modeItems = modeOptions.map((opt) => {
       const val = typeof opt === "object" ? opt.value : opt;
-      const label = CookingModeLabels[val] || (typeof opt === "object" ? opt.label : opt);
+      const label = localizeMode(val, lang) || (typeof opt === "object" ? opt.label : opt);
       return { value: val, label };
     });
     const modeOptionsJson = JSON.stringify(modeItems).replace(/"/g, "&quot;");
@@ -156,7 +158,7 @@ export function renderOvenPanel({ card, entityList }) {
           ? html`
               <div class="control-row">
                 <ha-select
-                  label="Cooking Mode"
+                  label="${localize("controls.cooking_mode", lang)}"
                   value="${currentDraftMode}"
                   data-value="${currentDraftMode}"
                   data-options="${modeOptionsJson}"
@@ -181,7 +183,7 @@ export function renderOvenPanel({ card, entityList }) {
 
         <div class="control-row">
           <div class="input-slider-header">
-            <span class="input-slider-label">Target Temperature</span>
+            <span class="input-slider-label">${localize("controls.target_temperature", lang)}</span>
             <span class="input-slider-value" data-for="setpoint" data-panel-id="${panelId}">
               ${currentDraftSetpoint} ${setpointUnit}
             </span>
@@ -217,7 +219,7 @@ export function renderOvenPanel({ card, entityList }) {
 
         <div class="control-row">
           <div class="input-slider-header">
-            <span class="input-slider-label">Cook Time</span>
+            <span class="input-slider-label">${localize("controls.cook_time", lang)}</span>
             <span class="input-slider-value" data-for="cookTime" data-panel-id="${panelId}">
               ${currentDraftCookTime} ${cookTimeUnit}
             </span>
@@ -256,22 +258,26 @@ export function renderOvenPanel({ card, entityList }) {
             ? html`
                 <ha-button class="stop-btn" data-panel-id="${panelId}" data-action="stop-cooking">
                   <ha-icon icon="mdi:stop" slot="start"></ha-icon>
-                  Stop
+                  ${localize("controls.stop", lang)}
                 </ha-button>
               `
             : ""}
           <div class="action-spacer"></div>
-          <ha-button class="cancel-btn" data-panel-id="${panelId}" data-action="cancel-panel"> Cancel </ha-button>
+          <ha-button class="cancel-btn" data-panel-id="${panelId}" data-action="cancel-panel">
+            ${localize("controls.cancel", lang)}
+          </ha-button>
           <ha-button
             class="start-btn"
             raised
             data-panel-id="${panelId}"
             data-action="start-cooking"
             ${!isRemoteEnabled ? "disabled" : ""}
-            title="${!isRemoteEnabled ? "Remote control is disabled on the oven" : "Start cooking"}"
+            title="${!isRemoteEnabled
+              ? localize("controls.remote_disabled_tooltip", lang)
+              : localize("controls.start_cooking", lang)}"
           >
             <ha-icon icon="mdi:play" slot="start"></ha-icon>
-            Start
+            ${localize("controls.start", lang)}
           </ha-button>
         </div>
       </div>
@@ -284,7 +290,7 @@ export function renderOvenPanel({ card, entityList }) {
         class="oven-panel clickable ${isExpanded ? "active-expanded" : ""}"
         data-panel-id="${panelId}"
         data-action="toggle-panel"
-        title="${isExpanded ? "Click to collapse" : "Click to set cooking controls"}"
+        title="${isExpanded ? localize("controls.click_to_collapse", lang) : localize("controls.click_to_set", lang)}"
       >
         <div class="oven-mode-panel">
           <div class="oven-progress-wrapper">
@@ -301,8 +307,10 @@ export function renderOvenPanel({ card, entityList }) {
             </svg>
             <div class="oven-mode ${machineState}">${getOvenIconSvg(cookingMode)}</div>
             <div class="oven-mode-name">
-              ${CookingModeLabels[cookingMode] ||
-              card._hass.formatEntityState(card._state(Entities.cookingMode, entityList))}
+              ${localizeMode(cookingMode, lang) ||
+              card._hass?.formatEntityState?.(card._state(Entities.cookingMode, entityList)) ||
+              cookingMode ||
+              ""}
             </div>
           </div>
         </div>

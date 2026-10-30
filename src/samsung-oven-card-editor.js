@@ -1,3 +1,4 @@
+import { localize } from "./localize/localize.js";
 const html = String.raw;
 
 export function isLocalThingsDevice(dev, hass) {
@@ -127,6 +128,8 @@ class SamsungOvenCardEditor extends HTMLElement {
   _render() {
     if (!this._hass) return;
 
+    const lang = this._hass.language || this._hass.locale?.language;
+
     if (!this._initialized) {
       this.shadowRoot.innerHTML = html`
         <style>
@@ -180,11 +183,16 @@ class SamsungOvenCardEditor extends HTMLElement {
           }
         </style>
         <div class="card-config">
-          <ha-select id="device-picker" label="Oven Device" fixedMenuPosition naturalMenuWidth></ha-select>
+          <ha-select
+            id="device-picker"
+            label="${localize("editor.oven_device", lang)}"
+            fixedMenuPosition
+            naturalMenuWidth
+          ></ha-select>
           <div id="device-help" class="help-text"></div>
-          ${renderField("title-input", "Card Title (Optional)")}
-          ${renderField("temperatures-input", "Standard Temperatures (Optional. Default: 160, 180, 200, 220)")}
-          ${renderField("times-input", "Standard Cook Times (Optional, minutes. Default: 15, 30, 60, 90)")}
+          ${renderField("title-input", localize("editor.card_title", lang))}
+          ${renderField("temperatures-input", localize("editor.standard_temperatures", lang))}
+          ${renderField("times-input", localize("editor.standard_times", lang))}
         </div>
       `;
 
@@ -255,10 +263,13 @@ class SamsungOvenCardEditor extends HTMLElement {
     if (helpEl) {
       if (devices.length === 0) {
         helpEl.className = "warning-text";
-        helpEl.textContent = "No LocalThings devices with 'oven' in their name were found.";
+        helpEl.textContent = localize("editor.no_devices_found", lang);
       } else {
         helpEl.className = "help-text";
-        helpEl.textContent = `Found ${devices.length} oven device${devices.length === 1 ? "" : "s"}.`;
+        helpEl.textContent = localize("editor.found_devices", lang, {
+          count: devices.length,
+          plural: devices.length === 1 ? "" : "s",
+        });
       }
     }
 

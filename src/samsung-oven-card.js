@@ -1,6 +1,7 @@
-import { SUFFIXES, Entities, CookingModeLabels } from "./consts.js";
+import { SUFFIXES, Entities } from "./consts.js";
 import { attachInputListeners } from "./helpers/inputs.js";
 import { renderOvenPanel } from "./helpers/oven-panel.js";
+import { localize } from "./localize/localize.js";
 import "./samsung-oven-card-editor.js";
 const html = String.raw;
 import { styles } from "./styles.js";
@@ -356,13 +357,19 @@ class SamsungOvenCard extends HTMLElement {
 
   // generate the HTML for displaying the card
   _render() {
+    const lang = this._hass?.language || this._hass?.locale?.language;
+
     if (!this._config || !this._hass) {
-      this.shadowRoot.innerHTML = this._frame(html`<div class="message"><span class="spinner"></span>Loading...</div>`);
+      this.shadowRoot.innerHTML = this._frame(
+        html`<div class="message"><span class="spinner"></span>${localize("common.loading", lang)}</div>`,
+      );
       return;
     }
     if (!this._entities || !Object.keys(this._entities).length) {
       this.shadowRoot.innerHTML = this._frame(
-        html`<div class="message error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>No content</div>`,
+        html`<div class="message error">
+          <ha-icon icon="mdi:alert-circle-outline"></ha-icon>${localize("common.no_content", lang)}
+        </div>`,
       );
       return;
     }
@@ -404,6 +411,17 @@ class SamsungOvenCard extends HTMLElement {
     const lampObj = this._state(Entities.lamp);
     const lampOn = lampObj?.state === "on";
 
+    const smartControlLabel = localize("status.smart_control", lang);
+    const childLockLabel = localize("status.child_lock", lang);
+    const doorLabel = localize("status.door", lang);
+    const soundLabel = localize("status.sound", lang);
+    const lampLabel = localize("status.lamp", lang);
+    const onLabel = localize("status.on", lang);
+    const offLabel = localize("status.off", lang);
+    const openLabel = localize("status.open", lang);
+    const closedLabel = localize("status.closed", lang);
+    const clickToggle = localize("status.click_to_toggle", lang);
+
     this.shadowRoot.innerHTML = this._frame(html`
       <div class="card-header">
         <span class="title">${this._config.title || this._title}</span>
@@ -416,24 +434,27 @@ class SamsungOvenCard extends HTMLElement {
         <div class="bottom-icon-bar">
           <div
             class="icon-indicator ${smartControlOn ? "active" : ""}"
-            title="Smart Control: ${smartControlObj ? this._hass.formatEntityState(smartControlObj) : "off"}"
+            title="${smartControlLabel}: ${smartControlObj ? this._hass.formatEntityState(smartControlObj) : offLabel}"
           >
             <ha-icon icon="${smartControlOn ? "mdi:remote" : "mdi:remote-off"}"></ha-icon>
           </div>
           <div
             class="icon-indicator ${childLockOn ? "active lock" : ""}"
-            title="Child Lock: ${childLockObj ? this._hass.formatEntityState(childLockObj) : "off"}"
+            title="${childLockLabel}: ${childLockObj ? this._hass.formatEntityState(childLockObj) : offLabel}"
           >
             <ha-icon icon="${childLockOn ? "mdi:lock" : "mdi:lock-open-variant"}"></ha-icon>
           </div>
-          <div class="icon-indicator ${doorOpen ? "active door" : ""}" title="Door: ${doorOpen ? "Open" : "Closed"}">
+          <div
+            class="icon-indicator ${doorOpen ? "active door" : ""}"
+            title="${doorLabel}: ${doorOpen ? openLabel : closedLabel}"
+          >
             <ha-icon icon="${doorOpen ? "mdi:door-open" : "mdi:door-closed"}"></ha-icon>
           </div>
           <button
             class="icon-indicator clickable ${soundOn ? "active" : ""}"
             data-action="toggle"
             data-entity-key="${Entities.sound}"
-            title="Sound: ${soundOn ? "On" : "Off"} (Click to toggle)"
+            title="${soundLabel}: ${soundOn ? onLabel : offLabel} (${clickToggle})"
           >
             <ha-icon icon="${soundOn ? "mdi:volume-high" : "mdi:volume-off"}"></ha-icon>
           </button>
@@ -441,7 +462,7 @@ class SamsungOvenCard extends HTMLElement {
             class="icon-indicator clickable ${lampOn ? "active lamp" : ""}"
             data-action="toggle"
             data-entity-key="${Entities.lamp}"
-            title="Lamp: ${lampOn ? "On" : "Off"} (Click to toggle)"
+            title="${lampLabel}: ${lampOn ? onLabel : offLabel} (${clickToggle})"
           >
             <ha-icon icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"></ha-icon>
           </button>
@@ -494,8 +515,8 @@ if (!customElements.get("samsung-oven-card")) customElements.define("samsung-ove
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "samsung-oven-card",
-  name: "Samsung Oven Card",
-  description: "Provides status and control of your LocalThings-connected Samsung Oven",
+  name: localize("common.name"),
+  description: localize("common.description"),
   preview: true,
   documentationURL: "https://github.com/tomhaskell/ha-samsung-oven-card",
 });
