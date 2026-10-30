@@ -4,7 +4,7 @@
   "private": true,
   "description": "HomeAssistant custom card for Samsung ovens using LocalThings integration",
   "scripts": {
-    "build": "esbuild src/samsung-oven-card.js --bundle --minify --format=esm --outfile=dist/samsung-oven-card.js",
+    "build": "esbuild src/samsung-oven-card.js --bundle --minify --format=esm --pure:console.debug --outfile=dist/samsung-oven-card.js",
     "watch": "esbuild src/samsung-oven-card.js --bundle --format=esm --outfile=dist/samsung-oven-card.js --watch"
   },
   "devDependencies": {
