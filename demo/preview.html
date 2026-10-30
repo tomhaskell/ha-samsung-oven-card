@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Samsung Oven Card - Visual Preview & Mock Harness</title>
+
+    <!-- Home Assistant default font: Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
     <style>
       :root {
-        /* Home Assistant Theme Variables (Default Light) */
+        /* Home Assistant Light Theme Design Tokens */
         --primary-text-color: #212121;
         --secondary-text-color: #727272;
         --disabled-text-color: #bdbdbd;
@@ -21,13 +27,14 @@
         --error-color: #db4437;
         --success-color: #0f9d58;
 
-        /* Card container tokens matching Lovelace */
+        /* Card container tokens */
         --card-background-color: #ffffff;
         --ha-card-background: var(--card-background-color);
         --ha-card-border-radius: 12px;
         --ha-card-border-width: 1px;
         --ha-card-border-color: #e0e0e0;
-        --ha-card-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        --ha-card-box-shadow:
+          0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
         --divider-color: rgba(0, 0, 0, 0.12);
         --secondary-background-color: #f5f5f5;
 
@@ -35,12 +42,30 @@
         --ha-font-size-l: 18px;
         --ha-font-size-m: 14px;
         --ha-font-size-s: 12px;
+        --ha-font-size-xl: 20px;
+        --ha-font-size-2xl: 24px;
         --ha-line-height-expanded: 24px;
+        --ha-line-height-condensed: 20px;
+
         font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+          Roboto,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Oxygen,
+          Ubuntu,
+          Cantarell,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      html {
+        font-size: 14px;
       }
 
       body {
+        font-size: 14px;
         background-color: #f0f2f5;
         color: var(--primary-text-color);
         margin: 0;
@@ -55,7 +80,8 @@
         --card-background-color: #1c1c1c;
         --ha-card-background: var(--card-background-color);
         --ha-card-border-color: rgba(255, 255, 255, 0.12);
-        --ha-card-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+        --ha-card-box-shadow:
+          0px 2px 1px -1px rgba(0, 0, 0, 0.4), 0px 1px 1px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 0px rgba(0, 0, 0, 0.24);
         --divider-color: rgba(255, 255, 255, 0.12);
         --secondary-background-color: #282828;
         background-color: #111111;
@@ -109,46 +135,6 @@
         color: var(--secondary-text-color);
         padding-left: 4px;
       }
-
-      /* Home Assistant Lovelace <ha-card> Component Styling */
-      ha-card {
-        display: flex;
-        flex-direction: column;
-        background: var(--ha-card-background, var(--card-background-color));
-        border-radius: var(--ha-card-border-radius, 12px);
-        border: var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color));
-        box-shadow: var(--ha-card-box-shadow, none);
-        box-sizing: border-box;
-        overflow: hidden;
-      }
-
-      /* Native HA web component mock shims */
-      ha-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        background: var(--secondary-background-color);
-        color: var(--primary-text-color);
-        gap: 8px;
-      }
-      ha-button[raised] {
-        background: var(--orange-color);
-        color: #fff;
-      }
-      ha-button.stop-btn {
-        background: var(--red-color);
-        color: #fff;
-      }
-      ha-button[disabled] {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
     </style>
   </head>
   <body>
@@ -194,8 +180,35 @@
       </div>
     </div>
 
-    <!-- Accurate SVG MDI Icon Shim for <ha-icon> using Shadow DOM -->
+    <!-- Web Component Shims for Home Assistant Native Elements -->
     <script>
+      // 1. <ha-card> Component Shim
+      class HaCardShim extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" });
+          this.shadowRoot.innerHTML = `
+            <style>
+              :host {
+                display: flex;
+                flex-direction: column;
+                background: var(--ha-card-background, var(--card-background-color, white));
+                border-radius: var(--ha-card-border-radius, 12px);
+                border: var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color, #e0e0e0));
+                box-shadow: var(--ha-card-box-shadow, none);
+                box-sizing: border-box;
+                overflow: hidden;
+                position: relative;
+                color: var(--primary-text-color);
+              }
+            </style>
+            <slot></slot>
+          `;
+        }
+      }
+      customElements.define("ha-card", HaCardShim);
+
+      // 2. <ha-icon> MDI SVG Vector Icon Shim
       const MDI_PATHS = {
         "mdi:remote":
           "M12,0C8.96,0 6.21,1.23 4.22,3.22L5.63,4.63C7.26,3 9.5,2 12,2C14.5,2 16.74,3 18.36,4.64L19.77,3.23C17.79,1.23 15.04,0 12,0M7.05,6.05L8.46,7.46C9.37,6.56 10.62,6 12,6C13.38,6 14.63,6.56 15.54,7.46L16.95,6.05C15.68,4.78 13.93,4 12,4C10.07,4 8.32,4.78 7.05,6.05M12,15A2,2 0 0,1 10,13A2,2 0 0,1 12,11A2,2 0 0,1 14,13A2,2 0 0,1 12,15M15,9H9A1,1 0 0,0 8,10V22A1,1 0 0,0 9,23H15A1,1 0 0,0 16,22V10A1,1 0 0,0 15,9Z",
@@ -270,6 +283,269 @@
       }
       customElements.define("ha-icon", HaIconShim);
 
+      // 3. <ha-select> Component Shim
+      class HaSelectShim extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" });
+          this._value = "";
+          this._options = [];
+        }
+        static get observedAttributes() {
+          return ["label", "value", "disabled"];
+        }
+        attributeChangedCallback(name, oldVal, newVal) {
+          if (name === "value") this._value = newVal;
+          this.render();
+        }
+        set options(opts) {
+          this._options = opts;
+          this.render();
+        }
+        get options() {
+          return this._options;
+        }
+        set value(v) {
+          this._value = v;
+          this.render();
+        }
+        get value() {
+          return this._value;
+        }
+        connectedCallback() {
+          this.render();
+        }
+        render() {
+          const label = this.getAttribute("label") || "";
+          const disabled = this.hasAttribute("disabled");
+
+          // Extract options from property, data-options, or slotted children
+          let opts = this._options;
+          if (!opts || !opts.length) {
+            try {
+              opts = JSON.parse(this.dataset.options || "[]");
+            } catch (e) {
+              opts = [];
+            }
+          }
+          if (!opts.length) {
+            opts = Array.from(this.querySelectorAll("ha-list-item")).map((el) => ({
+              value: el.getAttribute("value"),
+              label: el.textContent.trim(),
+            }));
+          }
+
+          const currentVal = this._value || this.getAttribute("value") || "";
+
+          this.shadowRoot.innerHTML = `
+            <style>
+              :host {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+              }
+              .select-container {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              }
+              label {
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--secondary-text-color, #727272);
+              }
+              select {
+                width: 100%;
+                padding: 10px 14px;
+                font-size: 14px;
+                font-family: inherit;
+                border-radius: 4px;
+                border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.15));
+                background-color: var(--card-background-color, #ffffff);
+                color: var(--primary-text-color, #212121);
+                outline: none;
+                cursor: pointer;
+                transition: border-color 0.2s ease;
+                box-sizing: border-box;
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23727272%22%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 20px;
+              }
+              select:focus {
+                border-color: var(--orange-color, #ff9800);
+              }
+            </style>
+            <div class="select-container">
+              ${label ? `<label>${label}</label>` : ""}
+              <select ${disabled ? "disabled" : ""}>
+                ${opts
+                  .map((o) => {
+                    const val = typeof o === "object" ? o.value : o;
+                    const txt = typeof o === "object" ? o.label || o.value : o;
+                    return `<option value="${val}" ${val === currentVal ? "selected" : ""}>${txt}</option>`;
+                  })
+                  .join("")}
+              </select>
+            </div>
+          `;
+
+          const selectEl = this.shadowRoot.querySelector("select");
+          selectEl?.addEventListener("change", (e) => {
+            this._value = e.target.value;
+            this.dispatchEvent(
+              new CustomEvent("selected", {
+                detail: { value: this._value },
+                bubbles: true,
+                composed: true,
+              }),
+            );
+          });
+        }
+      }
+      customElements.define("ha-select", HaSelectShim);
+      customElements.define("ha-list-item", class extends HTMLElement {});
+
+      // 4. <ha-slider> Component Shim
+      class HaSliderShim extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" });
+        }
+        static get observedAttributes() {
+          return ["value", "min", "max", "step", "disabled"];
+        }
+        attributeChangedCallback() {
+          this.render();
+        }
+        connectedCallback() {
+          this.render();
+        }
+        get value() {
+          const input = this.shadowRoot.querySelector("input");
+          return input ? input.value : this.getAttribute("value");
+        }
+        set value(v) {
+          this.setAttribute("value", v);
+          const input = this.shadowRoot.querySelector("input");
+          if (input) input.value = v;
+        }
+        render() {
+          const val = this.getAttribute("value") || 0;
+          const min = this.getAttribute("min") || 0;
+          const max = this.getAttribute("max") || 100;
+          const step = this.getAttribute("step") || 1;
+          const disabled = this.hasAttribute("disabled");
+
+          this.shadowRoot.innerHTML = `
+            <style>
+              :host {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 4px 0;
+              }
+              input[type="range"] {
+                width: 100%;
+                margin: 0;
+                appearance: none;
+                height: 6px;
+                border-radius: 3px;
+                background: var(--divider-color, rgba(127, 127, 127, 0.2));
+                outline: none;
+                cursor: pointer;
+              }
+              input[type="range"]::-webkit-slider-thumb {
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--orange-color, #ff9800);
+                cursor: pointer;
+                transition: transform 0.1s ease;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+              }
+              input[type="range"]::-webkit-slider-thumb:hover {
+                transform: scale(1.15);
+              }
+            </style>
+            <input type="range" min="${min}" max="${max}" step="${step}" value="${val}" ${disabled ? "disabled" : ""} />
+          `;
+
+          const input = this.shadowRoot.querySelector("input");
+          input?.addEventListener("input", (e) => {
+            this.dispatchEvent(
+              new CustomEvent("input", {
+                bubbles: true,
+                composed: true,
+              }),
+            );
+          });
+          input?.addEventListener("change", (e) => {
+            this.setAttribute("value", e.target.value);
+            this.dispatchEvent(
+              new CustomEvent("change", {
+                bubbles: true,
+                composed: true,
+              }),
+            );
+          });
+        }
+      }
+      customElements.define("ha-slider", HaSliderShim);
+
+      // 5. <ha-button> Component Shim
+      class HaButtonShim extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" });
+          this.shadowRoot.innerHTML = `
+            <style>
+              :host {
+                display: inline-flex;
+              }
+              button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                font-family: inherit;
+                cursor: pointer;
+                border: 1px solid var(--divider-color, rgba(0,0,0,0.12));
+                background: var(--secondary-background-color, #f5f5f5);
+                color: var(--primary-text-color, #212121);
+                transition: all 0.2s ease;
+              }
+              :host([raised]) button {
+                background: var(--orange-color, #ff9800);
+                border-color: var(--orange-color, #ff9800);
+                color: #ffffff;
+              }
+              :host(.stop-btn) button {
+                background: var(--red-color, #f44336);
+                border-color: var(--red-color, #f44336);
+                color: #ffffff;
+              }
+              :host([disabled]) button {
+                opacity: 0.5;
+                cursor: not-allowed;
+                pointer-events: none;
+              }
+            </style>
+            <button type="button">
+              <slot name="start"></slot>
+              <slot></slot>
+            </button>
+          `;
+        }
+      }
+      customElements.define("ha-button", HaButtonShim);
+
       function toggleTheme() {
         document.body.classList.toggle("dark-mode");
       }
@@ -285,12 +561,13 @@
         deviceName = "Kitchen Oven",
         subdeviceId = null,
         subdeviceName = null,
-        machineState = "ready",
+        machineState = "active",
         cookingMode = "convection",
         temperature = 180,
         setpoint = 180,
         progressPercent = 0,
         minutesRemaining = 0,
+        powerLevel = 800,
         smartControl = "on",
         childLock = "on",
         door = "off",
@@ -320,7 +597,6 @@
           };
         }
 
-        // Entities matching SUFFIXES from consts.js exactly
         const entities = {
           "sensor.oven_machine_state": {
             device_id: deviceId,
@@ -385,6 +661,10 @@
           "binary_sensor.oven_running": {
             device_id: deviceId,
             entity_id: "binary_sensor.oven_running",
+          },
+          "sensor.oven_power_level": {
+            device_id: deviceId,
+            entity_id: "sensor.oven_power_level",
           },
         };
 
@@ -457,7 +737,7 @@
           "switch.oven_lamp": { state: lamp },
           "switch.oven_sound": { state: sound },
           "binary_sensor.oven_running": {
-            state: machineState === "cooking" ? "on" : "off",
+            state: machineState === "active" || machineState === "cooking" ? "on" : "off",
           },
           "number.oven_cook_time": {
             state: "45",
@@ -496,7 +776,7 @@
         cardActive.hass = createMockHass({
           deviceId: "oven_1",
           deviceName: "Kitchen Oven",
-          machineState: "cooking",
+          machineState: "active",
           cookingMode: "convection",
           temperature: 168,
           setpoint: 180,
@@ -514,15 +794,15 @@
           deviceName: "Dual Cook Oven",
           subdeviceId: "oven_sub_lower",
           subdeviceName: "Lower Cavity",
-          machineState: "cooking",
+          machineState: "active",
           cookingMode: "upper_convection",
           temperature: 195,
           setpoint: 200,
           progressPercent: 78,
           minutesRemaining: 18,
-          cavityState: "Split",
+          cavityState: "Cooking",
           subStates: {
-            "sensor.sub_machine_state": { state: "cooking" },
+            "sensor.sub_machine_state": { state: "active" },
             "sensor.sub_cooking_mode": { state: "lower_convection" },
             "sensor.sub_temperature": {
               state: "160",
@@ -571,14 +851,15 @@
         cardMicro.hass = createMockHass({
           deviceId: "oven_micro",
           deviceName: "Microwave Oven",
-          machineState: "cooking",
+          machineState: "active",
           cookingMode: "micro_wave",
           progressPercent: 50,
           minutesRemaining: 3,
-          cavityState: "Running",
+          powerLevel: 800,
+          cavityState: "Cooking",
           subStates: {
             "sensor.oven_power_level": {
-              state: "900",
+              state: "800",
               attributes: { unit_of_measurement: "W" },
             },
           },
@@ -596,7 +877,7 @@
           setpoint: 0,
           progressPercent: 0,
           smartControl: "on",
-          cavityState: "Standby",
+          cavityState: "Ready",
         });
       });
     </script>

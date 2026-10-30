@@ -369,7 +369,7 @@ class SamsungOvenCard extends HTMLElement {
 
     for (const e in this._entities) {
       const stateObj = this._state(e);
-      console.debug(stateObj);
+      console.debug(e, stateObj);
     }
 
     this._panelEntities = {};
