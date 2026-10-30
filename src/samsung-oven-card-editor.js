@@ -14,10 +14,7 @@ export function isLocalThingsDevice(dev, hass) {
 
   // 2. Check manufacturer / model
   const manufacturer = (dev.manufacturer || "").toLowerCase();
-  if (
-    manufacturer.includes("localthings") ||
-    manufacturer.includes("local_things")
-  ) {
+  if (manufacturer.includes("localthings") || manufacturer.includes("local_things")) {
     return true;
   }
 
@@ -27,9 +24,7 @@ export function isLocalThingsDevice(dev, hass) {
       const devId = entry.device_id || entry.di;
       if (devId !== dev.id) return false;
       const platform = String(entry.platform || entry.pl || "").toLowerCase();
-      return (
-        platform.includes("localthings") || platform.includes("local_things")
-      );
+      return platform.includes("localthings") || platform.includes("local_things");
     });
     if (hasLtEntity) return true;
   }
@@ -45,11 +40,7 @@ export function getLocalThingsOvenDevices(hass) {
   // Primary: LocalThings devices with 'oven' in the name (case-insensitive)
   let devices = allDevices.filter((dev) => {
     const name = (dev.name || "").toLowerCase();
-    return (
-      isLocalThingsDevice(dev, hass) &&
-      name.includes("oven") &&
-      !name.includes("subdevice")
-    );
+    return isLocalThingsDevice(dev, hass) && name.includes("oven") && !name.includes("subdevice");
   });
 
   // Fallback 1: Any LocalThings devices
@@ -167,10 +158,7 @@ class SamsungOvenCardEditor extends HTMLElement {
             padding: 10px 12px;
             border-radius: 4px;
             border: 1px solid var(--divider-color, rgba(127, 127, 127, 0.3));
-            background: var(
-              --input-fill-color,
-              var(--secondary-background-color, rgba(127, 127, 127, 0.08))
-            );
+            background: var(--input-fill-color, var(--secondary-background-color, rgba(127, 127, 127, 0.08)));
             color: var(--primary-text-color);
             font-size: var(--ha-font-size-m, 14px);
             box-sizing: border-box;
@@ -192,22 +180,11 @@ class SamsungOvenCardEditor extends HTMLElement {
           }
         </style>
         <div class="card-config">
-          <ha-select
-            id="device-picker"
-            label="Oven Device"
-            fixedMenuPosition
-            naturalMenuWidth
-          ></ha-select>
+          <ha-select id="device-picker" label="Oven Device" fixedMenuPosition naturalMenuWidth></ha-select>
           <div id="device-help" class="help-text"></div>
           ${renderField("title-input", "Card Title (Optional)")}
-          ${renderField(
-            "temperatures-input",
-            "Standard Temperatures (e.g. 160, 180, 200, 220)",
-          )}
-          ${renderField(
-            "times-input",
-            "Standard Cook Times (minutes, e.g. 15, 30, 60, 90)",
-          )}
+          ${renderField("temperatures-input", "Standard Temperatures (Optional. Default: 160, 180, 200, 220)")}
+          ${renderField("times-input", "Standard Cook Times (Optional, minutes. Default: 15, 30, 60, 90)")}
         </div>
       `;
 
@@ -248,16 +225,11 @@ class SamsungOvenCardEditor extends HTMLElement {
 
     // Resolve oven devices
     const devices = getLocalThingsOvenDevices(this._hass);
-    if (
-      this._config?.device_id &&
-      !devices.some((i) => i.value === this._config.device_id)
-    ) {
+    if (this._config?.device_id && !devices.some((i) => i.value === this._config.device_id)) {
       const currentDev = this._hass.devices[this._config.device_id];
       devices.unshift({
         value: this._config.device_id,
-        label: currentDev
-          ? currentDev.name_by_user || currentDev.name
-          : this._config.device_id,
+        label: currentDev ? currentDev.name_by_user || currentDev.name : this._config.device_id,
       });
     }
 
@@ -267,10 +239,7 @@ class SamsungOvenCardEditor extends HTMLElement {
       select.innerHTML = devices
         .map(
           (dev) => html`
-            <ha-list-item
-              value="${dev.value}"
-              ${dev.value === this._config?.device_id ? "selected" : ""}
-            >
+            <ha-list-item value="${dev.value}" ${dev.value === this._config?.device_id ? "selected" : ""}>
               ${dev.label}
             </ha-list-item>
           `,
@@ -286,8 +255,7 @@ class SamsungOvenCardEditor extends HTMLElement {
     if (helpEl) {
       if (devices.length === 0) {
         helpEl.className = "warning-text";
-        helpEl.textContent =
-          "No LocalThings devices with 'oven' in their name were found.";
+        helpEl.textContent = "No LocalThings devices with 'oven' in their name were found.";
       } else {
         helpEl.className = "help-text";
         helpEl.textContent = `Found ${devices.length} oven device${devices.length === 1 ? "" : "s"}.`;
