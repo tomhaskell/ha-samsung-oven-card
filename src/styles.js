@@ -78,10 +78,7 @@ export const styles = css`
     transition: background-color 0.2s ease;
   }
   .oven-panel-container.expanded {
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.04)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.04));
   }
   .oven-panel {
     display: flex;
@@ -98,10 +95,7 @@ export const styles = css`
     transition: background-color 0.2s ease;
   }
   .oven-panel.clickable:hover {
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.08)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.08));
   }
   .expand-chevron {
     position: absolute;
@@ -200,10 +194,7 @@ export const styles = css`
   }
   .expansion-actions .start-btn[disabled] {
     --mdc-theme-primary: var(--disabled-text-color, rgba(127, 127, 127, 0.4));
-    background-color: var(
-      --disabled-color,
-      rgba(127, 127, 127, 0.2)
-    ) !important;
+    background-color: var(--disabled-color, rgba(127, 127, 127, 0.2)) !important;
     color: var(--disabled-text-color, rgba(127, 127, 127, 0.5)) !important;
     opacity: 0.5;
     cursor: not-allowed;
@@ -418,17 +409,11 @@ export const styles = css`
     cursor: pointer;
   }
   .icon-indicator.clickable:hover {
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.12)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.12));
   }
   .icon-indicator.clickable:active {
     transform: scale(0.92);
-    background-color: var(
-      --secondary-background-color,
-      rgba(127, 127, 127, 0.2)
-    );
+    background-color: var(--secondary-background-color, rgba(127, 127, 127, 0.2));
   }
   .icon-indicator.active {
     color: var(--primary-color, #03a9f4);
