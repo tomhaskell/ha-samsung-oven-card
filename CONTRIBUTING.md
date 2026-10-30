@@ -55,4 +55,4 @@ The easiest way to test changes to this custom card is to serve it locally and t
    npm run watch
    ```
 
-A GitHub Actions workflow automatically builds and minifies the code on every push to `main` and publishes `dist/samsung-oven-card.js`.
+A GitHub Actions workflow verifies the build on every push and pull request, and automatically attaches the minified `samsung-oven-card.js` bundle to GitHub Releases whenever a version tag (e.g. `v0.0.1`) is pushed.
