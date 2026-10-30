@@ -4,8 +4,7 @@ import { renderOvenPanel } from "./helpers/oven-panel.js";
 import "./samsung-oven-card-editor.js";
 const html = String.raw;
 import { styles } from "./styles.js";
-
-const VERSION = "0.0.1";
+import { version as VERSION } from "../package.json";
 
 class SamsungOvenCard extends HTMLElement {
   constructor() {
@@ -29,9 +28,7 @@ class SamsungOvenCard extends HTMLElement {
     const match = devices.find((d) => {
       const name = (d.name_by_user || d.name || "").toLowerCase();
       const isLt =
-        d.identifiers?.some(([domain]) =>
-          String(domain).toLowerCase().includes("localthings"),
-        ) ||
+        d.identifiers?.some(([domain]) => String(domain).toLowerCase().includes("localthings")) ||
         d.manufacturer?.toLowerCase().includes("localthings") ||
         Object.values(hass?.entities || {}).some(
           (e) =>
@@ -68,14 +65,11 @@ class SamsungOvenCard extends HTMLElement {
   _startTimer() {
     this._stopTimer();
     this._timer = setInterval(() => {
-      const elements = this.shadowRoot?.querySelectorAll(
-        ".oven-time-remaining",
-      );
+      const elements = this.shadowRoot?.querySelectorAll(".oven-time-remaining");
       if (elements) {
         for (const el of elements) {
           const panelId = el.dataset.panelId;
-          const entityList =
-            (panelId && this._panelEntities?.[panelId]) || this._entities;
+          const entityList = (panelId && this._panelEntities?.[panelId]) || this._entities;
           el.textContent = this._formatRemaining(entityList);
         }
       }
@@ -104,10 +98,7 @@ class SamsungOvenCard extends HTMLElement {
       return "";
     }
 
-    const diffSec = Math.max(
-      0,
-      Math.floor((finishDate.getTime() - Date.now()) / 1000),
-    );
+    const diffSec = Math.max(0, Math.floor((finishDate.getTime() - Date.now()) / 1000));
     const hours = Math.floor(diffSec / 3600);
     const minutes = Math.floor((diffSec % 3600) / 60);
     const seconds = diffSec % 60;
@@ -121,8 +112,7 @@ class SamsungOvenCard extends HTMLElement {
   _getDraft(panelId, entityList) {
     if (!this._drafts) this._drafts = {};
     if (!this._drafts[panelId]) {
-      const currentMode =
-        this._state(Entities.cookingMode, entityList)?.state || "";
+      const currentMode = this._state(Entities.cookingMode, entityList)?.state || "";
       const setpointObj = this._state(Entities.setpoint, entityList);
       const setpointVal = Number(setpointObj?.state);
       const cookTimeObj = this._state(Entities.cookTime, entityList);
@@ -167,9 +157,7 @@ class SamsungOvenCard extends HTMLElement {
       const labelEl = this.shadowRoot.querySelector(
         `.input-slider-value[data-for="${key}"][data-panel-id="${panelId}"]`,
       );
-      const slider = this.shadowRoot.querySelector(
-        `ha-slider[data-draft-key="${key}"][data-panel-id="${panelId}"]`,
-      );
+      const slider = this.shadowRoot.querySelector(`ha-slider[data-draft-key="${key}"][data-panel-id="${panelId}"]`);
       const unit = slider?.dataset.unit || "";
       if (labelEl) {
         labelEl.textContent = `${value} ${unit}`.trim();
@@ -188,10 +176,7 @@ class SamsungOvenCard extends HTMLElement {
       // 1. Set cooking mode if provided and changed
       const modeId = entityList[Entities.cookingMode];
       if (modeId && draft.cookingMode) {
-        const currentMode = this._state(
-          Entities.cookingMode,
-          entityList,
-        )?.state;
+        const currentMode = this._state(Entities.cookingMode, entityList)?.state;
         if (draft.cookingMode !== currentMode) {
           await this._hass.callService(modeId.split(".")[0], "select_option", {
             entity_id: modeId,
@@ -273,8 +258,7 @@ class SamsungOvenCard extends HTMLElement {
   // Called with a new hass object on every change in the home.
   set hass(hass) {
     this._hass = hass;
-    if (!this._entities && !this._discovering && this._config?.device_id)
-      void this._discover();
+    if (!this._entities && !this._discovering && this._config?.device_id) void this._discover();
 
     if (this._config && !this._config.title) {
       const dev = this._hass.devices?.[this._config.device_id];
@@ -364,18 +348,12 @@ class SamsungOvenCard extends HTMLElement {
   // generate the HTML for displaying the card
   _render() {
     if (!this._config || !this._hass) {
-      this.shadowRoot.innerHTML = this._frame(
-        html`<div class="message">
-          <span class="spinner"></span>Loading...
-        </div>`,
-      );
+      this.shadowRoot.innerHTML = this._frame(html`<div class="message"><span class="spinner"></span>Loading...</div>`);
       return;
     }
     if (!this._entities || !Object.keys(this._entities).length) {
       this.shadowRoot.innerHTML = this._frame(
-        html`<div class="message error">
-          <ha-icon icon="mdi:alert-circle-outline"></ha-icon>No content
-        </div>`,
+        html`<div class="message error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>No content</div>`,
       );
       return;
     }
@@ -386,10 +364,7 @@ class SamsungOvenCard extends HTMLElement {
     }
 
     this._panelEntities = {};
-    const mainPanelId =
-      this._entities[Entities.machineState] ||
-      this._entities[Entities.cookingMode] ||
-      "main";
+    const mainPanelId = this._entities[Entities.machineState] || this._entities[Entities.cookingMode] || "main";
     this._panelEntities[mainPanelId] = this._entities;
 
     let subdeviceOvenPanels = "";
@@ -406,10 +381,7 @@ class SamsungOvenCard extends HTMLElement {
       if (splitMode) {
         for (const id of Object.keys(this._subdevices)) {
           const subList = this._subdeviceEntities[id];
-          const subPanelId =
-            subList?.[Entities.machineState] ||
-            subList?.[Entities.cookingMode] ||
-            id;
+          const subPanelId = subList?.[Entities.machineState] || subList?.[Entities.cookingMode] || id;
           this._panelEntities[subPanelId] = subList;
           subdeviceOvenPanels += renderOvenPanel({
             card: this,
@@ -423,8 +395,7 @@ class SamsungOvenCard extends HTMLElement {
     const smartControlOn = smartControlObj?.state === "on";
 
     const childLockObj = this._state(Entities.childLock);
-    const childLockOn =
-      childLockObj?.state === "off" || childLockObj?.state === "locked";
+    const childLockOn = childLockObj?.state === "off" || childLockObj?.state === "locked";
 
     const doorObj = this._state(Entities.door);
     const doorOpen = doorObj?.state === "on" || doorObj?.state === "open";
@@ -438,43 +409,27 @@ class SamsungOvenCard extends HTMLElement {
     this.shadowRoot.innerHTML = this._frame(html`
       <div class="card-header">
         <span class="title">${this._config.title || this._title}</span>
-        <span
-          class="${this._state(Entities.cavityState)?.state?.toLowerCase()}"
-        >
+        <span class="${this._state(Entities.cavityState)?.state?.toLowerCase()}">
           ${this._hass.formatEntityState(this._state(Entities.cavityState))}
         </span>
       </div>
       <div class="content">
-        ${renderOvenPanel({ card: this, entityList: this._entities })}
-        ${subdeviceOvenPanels}
+        ${renderOvenPanel({ card: this, entityList: this._entities })} ${subdeviceOvenPanels}
         <div class="bottom-icon-bar">
           <div
             class="icon-indicator ${smartControlOn ? "active" : ""}"
-            title="Smart Control: ${smartControlObj
-              ? this._hass.formatEntityState(smartControlObj)
-              : "off"}"
+            title="Smart Control: ${smartControlObj ? this._hass.formatEntityState(smartControlObj) : "off"}"
           >
-            <ha-icon
-              icon="${smartControlOn ? "mdi:remote" : "mdi:remote-off"}"
-            ></ha-icon>
+            <ha-icon icon="${smartControlOn ? "mdi:remote" : "mdi:remote-off"}"></ha-icon>
           </div>
           <div
             class="icon-indicator ${childLockOn ? "active lock" : ""}"
-            title="Child Lock: ${childLockObj
-              ? this._hass.formatEntityState(childLockObj)
-              : "off"}"
+            title="Child Lock: ${childLockObj ? this._hass.formatEntityState(childLockObj) : "off"}"
           >
-            <ha-icon
-              icon="${childLockOn ? "mdi:lock" : "mdi:lock-open-variant"}"
-            ></ha-icon>
+            <ha-icon icon="${childLockOn ? "mdi:lock" : "mdi:lock-open-variant"}"></ha-icon>
           </div>
-          <div
-            class="icon-indicator ${doorOpen ? "active door" : ""}"
-            title="Door: ${doorOpen ? "Open" : "Closed"}"
-          >
-            <ha-icon
-              icon="${doorOpen ? "mdi:door-open" : "mdi:door-closed"}"
-            ></ha-icon>
+          <div class="icon-indicator ${doorOpen ? "active door" : ""}" title="Door: ${doorOpen ? "Open" : "Closed"}">
+            <ha-icon icon="${doorOpen ? "mdi:door-open" : "mdi:door-closed"}"></ha-icon>
           </div>
           <button
             class="icon-indicator clickable ${soundOn ? "active" : ""}"
@@ -482,9 +437,7 @@ class SamsungOvenCard extends HTMLElement {
             data-entity-key="${Entities.sound}"
             title="Sound: ${soundOn ? "On" : "Off"} (Click to toggle)"
           >
-            <ha-icon
-              icon="${soundOn ? "mdi:volume-high" : "mdi:volume-off"}"
-            ></ha-icon>
+            <ha-icon icon="${soundOn ? "mdi:volume-high" : "mdi:volume-off"}"></ha-icon>
           </button>
           <button
             class="icon-indicator clickable ${lampOn ? "active lamp" : ""}"
@@ -492,9 +445,7 @@ class SamsungOvenCard extends HTMLElement {
             data-entity-key="${Entities.lamp}"
             title="Lamp: ${lampOn ? "On" : "Off"} (Click to toggle)"
           >
-            <ha-icon
-              icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"
-            ></ha-icon>
+            <ha-icon icon="${lampOn ? "mdi:lightbulb" : "mdi:lightbulb-outline"}"></ha-icon>
           </button>
         </div>
       </div>
@@ -519,45 +470,27 @@ class SamsungOvenCard extends HTMLElement {
     const snapshotEntity = (id) => {
       const state = this._hass.states?.[id];
       return state
-        ? [
-            state.state,
-            state.attributes?.options,
-            state.attributes?.min,
-            state.attributes?.max,
-            state.attributes?.step,
-          ]
+        ? [state.state, state.attributes?.options, state.attributes?.min, state.attributes?.max, state.attributes?.step]
         : null;
     };
 
-    const mainEntries = Object.entries(this._entities).map(([key, id]) => [
-      key,
-      snapshotEntity(id),
-    ]);
+    const mainEntries = Object.entries(this._entities).map(([key, id]) => [key, snapshotEntity(id)]);
 
-    const subdeviceEntries = Object.entries(
-      this._subdeviceEntities || {},
-    ).flatMap(([subId, subEntities]) =>
-      Object.entries(subEntities || {}).map(([key, id]) => [
-        `${subId}:${key}`,
-        snapshotEntity(id),
-      ]),
+    const subdeviceEntries = Object.entries(this._subdeviceEntities || {}).flatMap(([subId, subEntities]) =>
+      Object.entries(subEntities || {}).map(([key, id]) => [`${subId}:${key}`, snapshotEntity(id)]),
     );
 
-    return JSON.stringify(
-      Object.fromEntries([...mainEntries, ...subdeviceEntries]),
-    );
+    return JSON.stringify(Object.fromEntries([...mainEntries, ...subdeviceEntries]));
   }
 }
 
-if (!customElements.get("samsung-oven-card"))
-  customElements.define("samsung-oven-card", SamsungOvenCard);
+if (!customElements.get("samsung-oven-card")) customElements.define("samsung-oven-card", SamsungOvenCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "samsung-oven-card",
   name: "Samsung Oven Card",
-  description:
-    "Provides status and control of your LocalThings-connected Samsung Oven",
+  description: "Provides status and control of your LocalThings-connected Samsung Oven",
   preview: true,
   documentationURL: "https://github.com/tomhaskell/ha-samsung-oven-card",
 });
