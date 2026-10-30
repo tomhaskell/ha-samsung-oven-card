@@ -69,4 +69,12 @@ export const CookingModeLabels = Object.freeze({
   "Top Heat Pluse Convection": "Top Heat + Fan",
   "Bottom Heat Pluse Convection": "Bottom Heat + Fan",
   Conventional: "No Fan",
+  "Upper Convection": "Upper Convection",
+  "Upper Top Convection": "Upper Top Convection",
+  "Upper Large Grill": "Upper Large Grill",
+  "Upper Autocook": "Upper Autocook",
+  "Lower Convection": "Lower Convection",
+  "Lower Bottom Convection": "Lower Bottom Convection",
+  "Lower Bottom": "Lower Bottom",
+  "Lower Autocook": "Lower Autocook",
 });
