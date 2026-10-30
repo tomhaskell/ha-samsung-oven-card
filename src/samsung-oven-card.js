@@ -68,9 +68,16 @@ class SamsungOvenCard extends HTMLElement {
   _startTimer() {
     this._stopTimer();
     this._timer = setInterval(() => {
-      const el = this.shadowRoot?.querySelector(".oven-time-remaining");
-      if (el) {
-        el.textContent = this._formatRemaining();
+      const elements = this.shadowRoot?.querySelectorAll(
+        ".oven-time-remaining",
+      );
+      if (elements) {
+        for (const el of elements) {
+          const panelId = el.dataset.panelId;
+          const entityList =
+            (panelId && this._panelEntities?.[panelId]) || this._entities;
+          el.textContent = this._formatRemaining(entityList);
+        }
       }
     }, 1000);
   }
@@ -82,8 +89,8 @@ class SamsungOvenCard extends HTMLElement {
     }
   }
 
-  _formatRemaining() {
-    const raw = this._state(Entities.estimatedFinish)?.state;
+  _formatRemaining(entityList = this._entities) {
+    const raw = this._state(Entities.estimatedFinish, entityList)?.state;
     if (!raw || raw === "unknown" || raw === "unavailable") {
       return "";
     }

@@ -43,7 +43,7 @@ export function renderOvenPanel({ card, entityList }) {
 
   const arcLength = 187;
   const dashOffset = arcLength - (arcLength * progress) / 100;
-  const timeRemaining = card._formatRemaining();
+  const timeRemaining = card._formatRemaining(entityList);
 
   const isMicrowave =
     Boolean(cookingMode) &&
@@ -392,7 +392,9 @@ export function renderOvenPanel({ card, entityList }) {
           ${subDisplay
             ? html`<div class="temp-secondary">${subDisplay}</div>`
             : ""}
-          <div class="oven-time-remaining">${timeRemaining}</div>
+          <div class="oven-time-remaining" data-panel-id="${panelId}">
+            ${timeRemaining}
+          </div>
         </div>
         <div class="expand-chevron">
           <ha-icon
