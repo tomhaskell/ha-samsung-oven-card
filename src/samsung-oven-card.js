@@ -1,5 +1,5 @@
 import { SUFFIXES, Entities, CookingModeLabels } from "./consts.js";
-import { renderSelect, attachInputListeners } from "./helpers/inputs.js";
+import { attachInputListeners } from "./helpers/inputs.js";
 import { renderOvenPanel } from "./helpers/oven-panel.js";
 import "./samsung-oven-card-editor.js";
 const html = String.raw;
