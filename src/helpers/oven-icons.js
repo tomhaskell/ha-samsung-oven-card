@@ -124,14 +124,14 @@ export const OVEN_ICONS = {
 
   bottom: wrapSvg(BOTTOM_BAR),
 
-  microwave: wrapSvg(MW_WAVES),
+  micro_wave: wrapSvg(MW_WAVES),
 
-  microwave_grill: wrapSvg(`
+  micro_wave_grill: wrapSvg(`
     ${FULL_GRILL}
     <path d="M6 14.5c1.5-1.1 3 1.1 4.5 0s3-1.1 4.5 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" />
   `),
 
-  microwave_convection: wrapSvg(`
+  micro_wave_convection: wrapSvg(`
     ${CIRCULAR_ELEMENT}${MDI_FAN}
     <path d="M7 17.5c1.2-.8 2.5.8 3.8 0s2.5-.8 3.8 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none" />
   `),
