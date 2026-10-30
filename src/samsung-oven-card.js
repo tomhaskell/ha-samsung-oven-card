@@ -345,6 +345,15 @@ class SamsungOvenCard extends HTMLElement {
     `;
   }
 
+  // Returns true if the oven has subdevices and is currently operating in dual-zone split mode
+  isSplit() {
+    if (!this._subdevices || Object.keys(this._subdevices).length === 0) {
+      return false;
+    }
+    const modes = this._state(Entities.cookingMode)?.attributes?.options || [];
+    return modes.some((m) => String(m).toLowerCase().startsWith("upper"));
+  }
+
   // generate the HTML for displaying the card
   _render() {
     if (!this._config || !this._hass) {
@@ -368,26 +377,15 @@ class SamsungOvenCard extends HTMLElement {
     this._panelEntities[mainPanelId] = this._entities;
 
     let subdeviceOvenPanels = "";
-    if (this._subdevices) {
-      // check available modes to see if it is in split mode
-      const modes = this._state(Entities.cookingMode)?.attributes.options;
-      let splitMode = false;
-      for (const m of modes || []) {
-        if (m.toLowerCase().startsWith("upper")) {
-          splitMode = true;
-          break;
-        }
-      }
-      if (splitMode) {
-        for (const id of Object.keys(this._subdevices)) {
-          const subList = this._subdeviceEntities[id];
-          const subPanelId = subList?.[Entities.machineState] || subList?.[Entities.cookingMode] || id;
-          this._panelEntities[subPanelId] = subList;
-          subdeviceOvenPanels += renderOvenPanel({
-            card: this,
-            entityList: subList,
-          });
-        }
+    if (this.isSplit()) {
+      for (const id of Object.keys(this._subdevices)) {
+        const subList = this._subdeviceEntities?.[id];
+        const subPanelId = subList?.[Entities.machineState] || subList?.[Entities.cookingMode] || id;
+        this._panelEntities[subPanelId] = subList;
+        subdeviceOvenPanels += renderOvenPanel({
+          card: this,
+          entityList: subList,
+        });
       }
     }
 
@@ -454,25 +452,13 @@ class SamsungOvenCard extends HTMLElement {
 
   // Height in the masonry view, in units of 50 pixels.
   getCardSize() {
-    // Check if dual-zone split cavity mode is active
-    const modes = this._state(Entities.cookingMode)?.attributes?.options || [];
-    const isSplit = Boolean(
-      this._subdevices &&
-      Object.keys(this._subdevices).length > 0 &&
-      modes.some((m) => String(m).toLowerCase().startsWith("upper")),
-    );
-    // Base card height is ~240px (4-5 units); dual-zone is ~360px (7 units)
-    return isSplit ? 7 : 5;
+    // Base card height is ~240px (5 units); dual-zone split mode is ~350px (7 units)
+    return this.isSplit() ? 7 : 5;
   }
 
   // Size in the grid of the sections view.
   getGridOptions() {
-    const modes = this._state(Entities.cookingMode)?.attributes?.options || [];
-    const isSplit = Boolean(
-      this._subdevices &&
-      Object.keys(this._subdevices).length > 0 &&
-      modes.some((m) => String(m).toLowerCase().startsWith("upper")),
-    );
+    const isSplit = this.isSplit();
     return {
       columns: 12,
       min_columns: 6,
